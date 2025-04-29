@@ -1,9 +1,16 @@
 # PRISM-AI
+<html>
+<head>
 <style>
-h1 {
-    text-decoration-line: underline
-}
+    h1 {
+        text-decoration-line: underline;
+        text-align: center;
+    }
 </style>
-<h1>Personalized Rsponsive &amp; Intelligent Sales Machine.</h1> 
+</head>
 
-A personalized AI agent which attracts customers for business using social media platforms and acts as a sales-person for the said business
+<body>
+<h1>Personalized Rsponsive &amp; Intelligent Sales Machine.</h1> 
+<p>A personalized AI agent which attracts customers to businesses by acting as a sales-person through interactive conversations which are done through social media platorms.</p>
+</body>
+</html>
