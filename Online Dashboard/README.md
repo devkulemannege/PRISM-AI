@@ -1,1 +1,1 @@
-Files related to Online Dashboard go here (front end & back end).
+Files related to the Online Dashboard go here (front end & back end).
