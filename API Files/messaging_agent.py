@@ -122,9 +122,11 @@ def webhook():
 # ✅ Endpoint to Trigger Outbound Template Message
 @app.route("/send-template", methods=["POST"])
 def send_template():
-    phone = request.json.get("phone")
-    name = request.json.get("name")
-    link = request.json.get("link")
+    data = request.json
+    print(f"Received send-template request: {data}")  # Debug print
+    phone = data.get("phone")
+    name = data.get("name")
+    link = data.get("link")
     
     url = f"https://graph.facebook.com/v19.0/{PHONE_NUMBER_ID}/messages"
     headers = {
@@ -136,8 +138,8 @@ def send_template():
         "to": phone,
         "type": "template",
         "template": {
-            "name": "promo_offer",
-            "language": {"code": "en_US"},
+            "name": "hello_world",  # template name
+            "language": {"code": "en_US"},  # template's language
             "components": [
                 {
                     "type": "body",
@@ -150,6 +152,7 @@ def send_template():
         }
     }
     res = requests.post(url, headers=headers, json=payload)
+    print(f"WhatsApp API Response: {res.json()}")  # Debug print
     return res.text, res.status_code
 
 # ✅ Main
