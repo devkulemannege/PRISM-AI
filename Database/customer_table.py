@@ -7,7 +7,7 @@ id = 0
 connection = mdb.connect(host='localhost',user='root',password='',database='prism_ai_database')
 cont = connection.cursor() # controller to control the database
 
-def addRow(mobileNo, fName, pastConversation,  pastPurchase):
+def addRow(mobileNo, fName):
     '''function which can be used to add rows
     to the customer data table in the database'''
 
