@@ -15,16 +15,15 @@ import mariadb
 import os
 from dotenv import load_dotenv
 
-
-load_dotenv(dotenv_path="test_agent/credentials.env")  # Optional: path if not in root
-
-
+# Load the .env file once at the start
+load_dotenv(dotenv_path="API Files\credentials.env")  # Ensure this path is correct
 
 # Configurations
 ACCESS_TOKEN = os.getenv("ACCESS_TOKEN")
 PHONE_NUMBER_ID = os.getenv("PHONE_NUMBER_ID")
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 VERIFY_TOKEN = os.getenv("VERIFY_TOKEN")
+print(f"Loaded VERIFY_TOKEN: {VERIFY_TOKEN}")  # Debug print to confirm
 
 #  Initialize Flask
 app = Flask(__name__)
@@ -93,18 +92,22 @@ def call_llama(user_input):
         return "Sorry, I couldn't process your request right now. Please try again later."
 
 #To veirify the webhook
-@app.route('/webhook', methods=['GET'])
-def verify():
-    token = request.args.get('hub.verify_token')
-    challenge = request.args.get('hub.challenge')
-    
-    if token == VERIFY_TOKEN:
-        return challenge, 200
-    return "Verification token mismatch", 403
+load_dotenv()
+VERIFY_TOKEN = os.getenv("VERIFY_TOKEN")  # Load from credentials.env
 
-# Webhook to Handle Incoming Messages
-@app.route("/webhook", methods=["POST"])
+@app.route("/webhook", methods=["GET", "POST"])
 def webhook():
+    if request.method == "GET":
+        mode = request.args.get("hub.mode")
+        token = request.args.get("hub.verify_token")
+        challenge = request.args.get("hub.challenge")
+        if mode != "subscribe":
+            return "Invalid mode", 400
+        if token != VERIFY_TOKEN:
+            return "Forbidden", 403
+        return challenge, 200
+
+    # Handle POST requests (incoming messages)
     data = request.json
     try:
         message = data['entry'][0]['changes'][0]['value']['messages'][0]['text']['body']
