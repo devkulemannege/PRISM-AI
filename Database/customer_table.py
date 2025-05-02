@@ -11,7 +11,6 @@ def addRow(mobileNo, fName):
     '''function which can be used to add rows
     to the customer data table in the database'''
 
-
     cont.execute('SELECT customerId FROM customer')
     columnLen = len(cont.fetchall()) # identify the number of ID's available
 
