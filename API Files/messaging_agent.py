@@ -139,13 +139,12 @@ def send_template():
         "type": "template",
         "template": {
             "name": "test_template",  # template name
-            "language": {"code": "en_US"},  # template's language
+            "language": {"code": "en"},  # template's language
             "components": [
                 {
                     "type": "body",
                     "parameters": [
-                        {"type": "text", "text": name},
-                        {"type": "text", "text": link}
+                        {"type": "text", "text": name}
                     ]
                 }
             ]
