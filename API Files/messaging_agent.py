@@ -138,7 +138,7 @@ def send_template():
         "to": phone,
         "type": "template",
         "template": {
-            "name": "hello_world",  # template name
+            "name": "test_template",  # template name
             "language": {"code": "en_US"},  # template's language
             "components": [
                 {
