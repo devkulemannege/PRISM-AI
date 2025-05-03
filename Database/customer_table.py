@@ -12,14 +12,10 @@ def addRow(mobileNo, fName):
     '''function which can be used to add rows
     to the customer data table in the database'''
 
-    cont.execute('SELECT customerId FROM customer')
-    id = random.randrange(1000000, 9999999)
-    while id in cont.fetchall(): id = random.randrange(1000000, 9999999) # creates unique ID for business
-
     pastConversation = 0
     pastPurchase = 0
 
-    cont.execute(f"INSERT INTO customer VALUES ({id},'{mobileNo}','{fName}',{pastConversation},{pastPurchase})")
+    cont.execute(f"INSERT INTO customer (Mobile_No, Fname, past_conversation, past_purchase) VALUES ('{mobileNo}','{fName}',{pastConversation},{pastPurchase})")
 
     connection.commit()
     connection.close()
