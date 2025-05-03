@@ -13,13 +13,16 @@ import os
 from dotenv import load_dotenv
 import argparse
 
-load_dotenv(dotenv_path="test_agent/credentials.env")  # Optional: path if not in root
+load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), "credentials.env"))  # Optional: path if not in root
 
 # Configurations
 ACCESS_TOKEN = os.getenv("ACCESS_TOKEN")
 PHONE_NUMBER_ID = os.getenv("PHONE_NUMBER_ID")
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 VERIFY_TOKEN = os.getenv("VERIFY_TOKEN")
+print(f"Looking for .env at: {os.path.abspath(os.path.join(os.path.dirname(__file__), 'credentials.env'))}")
+print(f"Loaded ACCESS_TOKEN: {ACCESS_TOKEN}")
+print(f"Loaded PHONE_NUMBER_ID: {PHONE_NUMBER_ID}")
 
 # Initialize Flask
 app = Flask(__name__)
@@ -144,11 +147,13 @@ def send_template():
 
 # CLI to Send Template Message
 def send_template_cli(phone, name):
+    print(f"CLI ACCESS_TOKEN: {ACCESS_TOKEN}")  # Debug
     url = f"https://graph.facebook.com/v19.0/{PHONE_NUMBER_ID}/messages"
     headers = {
         "Authorization": f"Bearer {ACCESS_TOKEN}",
         "Content-Type": "application/json"
     }
+    print(f"Sending request with headers: {headers}")  # Debug
     payload = {
         "messaging_product": "whatsapp",
         "to": phone,
@@ -166,8 +171,10 @@ def send_template_cli(phone, name):
             ]
         }
     }
+    print(f"Sending request with payload: {payload}")  # Debug
     res = requests.post(url, headers=headers, json=payload)
-    print(f"WhatsApp API Response: {res.json()}")
+    print(f"WhatsApp API Response: {res.json()}")  # Debug
+    return res.json()
 
 # Main
 if __name__ == "__main__":
