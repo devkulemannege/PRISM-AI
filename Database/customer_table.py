@@ -1,4 +1,5 @@
 import mariadb as mdb
+import random
 
 # initialization of variables 
 columnLen = 0
@@ -12,9 +13,8 @@ def addRow(mobileNo, fName):
     to the customer data table in the database'''
 
     cont.execute('SELECT customerId FROM customer')
-    columnLen = len(cont.fetchall()) # identify the number of ID's available
-
-    id = columnLen+1 # increase ID number for new row
+    id = random.randrange(1000000, 9999999)
+    while id in cont.fetchall(): id = random.randrange(1000000, 9999999) # creates unique ID for business
 
     pastConversation = 0
     pastPurchase = 0
