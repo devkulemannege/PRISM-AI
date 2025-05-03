@@ -4,31 +4,27 @@
 # - Flask (or FastAPI)
 # - requests
 # - MariaDB connector (mariadb)
-
-
-
-
+# - argparse
 
 from flask import Flask, request
 import requests
 import mariadb
 import os
 from dotenv import load_dotenv
+import argparse
 
-# Load the .env file once at the start
-load_dotenv(dotenv_path="API Files\credentials.env")  # Ensure this path is correct
+load_dotenv(dotenv_path="test_agent/credentials.env")  # Optional: path if not in root
 
 # Configurations
 ACCESS_TOKEN = os.getenv("ACCESS_TOKEN")
 PHONE_NUMBER_ID = os.getenv("PHONE_NUMBER_ID")
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 VERIFY_TOKEN = os.getenv("VERIFY_TOKEN")
-print(f"Loaded VERIFY_TOKEN: {VERIFY_TOKEN}")  # Debug print to confirm
 
-#  Initialize Flask
+# Initialize Flask
 app = Flask(__name__)
 
-#  MariaDB Connection
+# MariaDB Connection
 conn = mariadb.connect(
     user="root",
     password="",
@@ -44,7 +40,7 @@ def save_conversation(phone, user_msg, ai_reply):
     )
     conn.commit()
 
-#  WhatsApp - Send Message (Free-form)
+# WhatsApp - Send Message (Free-form)
 def send_whatsapp_message(phone, msg):
     url = f"https://graph.facebook.com/v19.0/{PHONE_NUMBER_ID}/messages"
     headers = {
@@ -60,8 +56,7 @@ def send_whatsapp_message(phone, msg):
     res = requests.post(url, headers=headers, json=payload)
     print(f"WhatsApp API Response: {res.json()}")  # Debug print
 
-#  Groq - Call LLaMA 4 Model
-
+# Groq - Call LLaMA 4 Model
 def call_llama(user_input):
     url = "https://api.groq.com/openai/v1/chat/completions"
     headers = {
@@ -69,7 +64,7 @@ def call_llama(user_input):
         "Content-Type": "application/json"
     }
     data = {
-        "model": "llama3-8b-8192",  # Updated model
+        "model": "llama3-8b-8192",
         "messages": [
             {
                 "role": "system",
@@ -91,23 +86,19 @@ def call_llama(user_input):
         print(f"Groq API Request Failed: {e}")
         return "Sorry, I couldn't process your request right now. Please try again later."
 
-#To veirify the webhook
-load_dotenv()
-VERIFY_TOKEN = os.getenv("VERIFY_TOKEN")  # Load from credentials.env
-
-@app.route("/webhook", methods=["GET", "POST"])
-def webhook():
-    if request.method == "GET":
-        mode = request.args.get("hub.mode")
-        token = request.args.get("hub.verify_token")
-        challenge = request.args.get("hub.challenge")
-        if mode != "subscribe":
-            return "Invalid mode", 400
-        if token != VERIFY_TOKEN:
-            return "Forbidden", 403
+# To verify the webhook
+@app.route('/webhook', methods=['GET'])
+def verify():
+    token = request.args.get('hub.verify_token')
+    challenge = request.args.get('hub.challenge')
+    
+    if token == VERIFY_TOKEN:
         return challenge, 200
+    return "Verification token mismatch", 403
 
-    # Handle POST requests (incoming messages)
+# Webhook to Handle Incoming Messages
+@app.route("/webhook", methods=["POST"])
+def webhook():
     data = request.json
     try:
         message = data['entry'][0]['changes'][0]['value']['messages'][0]['text']['body']
@@ -119,14 +110,11 @@ def webhook():
         print(f"Webhook Error: {e}")
     return "OK", 200
 
-# ✅ Endpoint to Trigger Outbound Template Message
+# Endpoint to Trigger Outbound Template Message
 @app.route("/send-template", methods=["POST"])
 def send_template():
-    data = request.json
-    print(f"Received send-template request: {data}")  # Debug print
-    phone = data.get("phone")
-    name = data.get("name")
-    link = data.get("link")
+    phone = request.json.get("phone")
+    name = request.json.get("name")
     
     url = f"https://graph.facebook.com/v19.0/{PHONE_NUMBER_ID}/messages"
     headers = {
@@ -138,8 +126,8 @@ def send_template():
         "to": phone,
         "type": "template",
         "template": {
-            "name": "test_template",  # template name
-            "language": {"code": "en"},  # template's language
+            "name": "test_template",  # Matches your approved template
+            "language": {"code": "en"},  # Matches the template's language
             "components": [
                 {
                     "type": "body",
@@ -154,7 +142,43 @@ def send_template():
     print(f"WhatsApp API Response: {res.json()}")  # Debug print
     return res.text, res.status_code
 
-# ✅ Main
-if __name__ == "__main__":
-    app.run(port=8080, debug=False)
+# CLI to Send Template Message
+def send_template_cli(phone, name):
+    url = f"https://graph.facebook.com/v19.0/{PHONE_NUMBER_ID}/messages"
+    headers = {
+        "Authorization": f"Bearer {ACCESS_TOKEN}",
+        "Content-Type": "application/json"
+    }
+    payload = {
+        "messaging_product": "whatsapp",
+        "to": phone,
+        "type": "template",
+        "template": {
+            "name": "test_template",
+            "language": {"code": "en"},
+            "components": [
+                {
+                    "type": "body",
+                    "parameters": [
+                        {"type": "text", "text": name}
+                    ]
+                }
+            ]
+        }
+    }
+    res = requests.post(url, headers=headers, json=payload)
+    print(f"WhatsApp API Response: {res.json()}")
 
+# Main
+if __name__ == "__main__":
+    # Parse command-line arguments
+    parser = argparse.ArgumentParser(description="Prism AI WhatsApp Bot")
+    parser.add_argument("--send-template", nargs=2, metavar=("PHONE", "NAME"), help="Send a template message to a phone number with a name (e.g., --send-template +94787555063 Thinal)")
+    args = parser.parse_args()
+
+    # Start Flask app
+    if args.send_template:
+        phone, name = args.send_template
+        send_template_cli(phone, name)
+    else:
+        app.run(port=8080, debug=False)
