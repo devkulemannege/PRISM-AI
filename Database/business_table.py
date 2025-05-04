@@ -1,6 +1,5 @@
 # script which imports data into the database
 import mariadb as mdb 
-import random
 
 #initalization of variables
 id = 0
@@ -15,7 +14,7 @@ def addRow(name, contact, password, type):
 
     agentStatus = 0 # to be changed later
 
-    cont.execute(f"INSERT INTO business (Name, Contact, Password, Type, Agent_Status) VALUES ('{name}','{contact}','{type}','{password}',{agentStatus})")
+    cont.execute(f"INSERT INTO business (Name, Contact, `Password`, Type, Agent_Status) VALUES ('{name}','{contact}','{type}','{password}',{agentStatus})")
 
     connection.commit()
     connection.close
