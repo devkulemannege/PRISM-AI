@@ -10,9 +10,8 @@ cont = connection.cursor() # controller to control the database
 def addRow(mobileNo, fName):
     '''function which can be used to add rows
     to the customer data table in the database'''
-
-    pastConversation = 0
-    pastPurchase = 0
+    pastConversation = 0 # to be changed
+    pastPurchase = 0 # to be changed
 
     cont.execute(f"INSERT INTO customer (Mobile_No, Fname, past_conversation, past_purchase) VALUES ('{mobileNo}','{fName}',{pastConversation},{pastPurchase})")
     connection.commit()

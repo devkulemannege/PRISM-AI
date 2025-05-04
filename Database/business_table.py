@@ -11,7 +11,6 @@ cont = connection.cursor() # controller to control the database
 def addRow(name, contact, password, type):
     '''function which can be used to add rows 
     to the business data table in the database'''
-
     agentStatus = 0 # to be changed later
 
     cont.execute(f"INSERT INTO business (Name, Contact, `Password`, Type, Agent_Status) VALUES ('{name}','{contact}','{type}','{password}',{agentStatus})")
