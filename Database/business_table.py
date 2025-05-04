@@ -19,5 +19,3 @@ def addRow(name, contact, password, type):
 
     connection.commit()
     connection.close
-
-addRow('test','0728000031','test','test')
