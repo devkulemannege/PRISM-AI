@@ -15,6 +15,5 @@ def addRow(mobileNo, fName):
     pastPurchase = 0
 
     cont.execute(f"INSERT INTO customer (Mobile_No, Fname, past_conversation, past_purchase) VALUES ('{mobileNo}','{fName}',{pastConversation},{pastPurchase})")
-
     connection.commit()
     connection.close()

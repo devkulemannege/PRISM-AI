@@ -15,6 +15,5 @@ def addRow(name, contact, password, type):
     agentStatus = 0 # to be changed later
 
     cont.execute(f"INSERT INTO business (Name, Contact, `Password`, Type, Agent_Status) VALUES ('{name}','{contact}','{type}','{password}',{agentStatus})")
-
     connection.commit()
     connection.close
