@@ -1,5 +1,4 @@
 import mariadb as mdb
-import random
 
 # initialization of variables 
 columnLen = 0
