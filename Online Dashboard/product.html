@@ -1,0 +1,47 @@
+<!-- templates/product.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Product Prompt Generator</title>
+</head>
+<body>
+    <h1>Enter Product Details</h1>
+    <form action="/generate" method="POST">
+
+        <label for="product_name">Product Name:</label><br>
+        <input type="text" id="product_name" name="product_name" required><br><br>
+
+        <label for="target_problem">Target Problem:</label><br>
+        <input type="text" id="target_problem" name="target_problem" required><br><br>
+
+        <label for="target_audience">Target Audience:</label><br>
+        <input type="text" id="target_audience" name="target_audience" required><br><br>
+
+        <label for="unique_solution">Unique Solution:</label><br>
+        <input type="text" id="unique_solution" name="unique_solution" required><br><br>
+
+        <label for="reason_why_needed">Reason Why It’s Needed Now:</label><br>
+        <input type="text" id="reason_why_needed" name="reason_why_needed" required><br><br>
+
+        <label for="main_benefits">Main Benefits:</label><br>
+        <input type="text" id="main_benefits" name="main_benefits" required><br><br>
+
+        <label for="social_proof">Social Proof (e.g., review):</label><br>
+        <input type="text" id="social_proof" name="social_proof" required><br><br>
+
+        <label for="price">Normal Price:</label><br>
+        <input type="text" id="price" name="price" required><br><br>
+
+        <label for="offer">Special Offer:</label><br>
+        <input type="text" id="offer" name="offer" required><br><br>
+
+        <label for="urgency">Urgency Message:</label><br>
+        <input type="text" id="urgency" name="urgency" required><br><br>
+
+        <label for="cta">Call to Action (CTA):</label><br>
+        <input type="text" id="cta" name="cta" required><br><br>
+
+        <button type="submit">Generate Prompt</button>
+    </form>
+</body>
+</html>

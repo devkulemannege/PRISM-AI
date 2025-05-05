@@ -1,6 +1,5 @@
 # script which imports data into the database
 import mariadb as mdb 
-import random
 
 #initalization of variables
 id = 0
@@ -9,15 +8,11 @@ agentstatus = ''
 connection = mdb.connect(host='localhost',user='root',password='',database='prism_ai_database')
 cont = connection.cursor() # controller to control the database
 
-def addRow(name, contact, password, type):
+def addRow(name, contact, password, type, template, prompt):
     '''function which can be used to add rows 
     to the business data table in the database'''
-
     agentStatus = 0 # to be changed later
 
-    cont.execute(f"INSERT INTO business (Name, Contact, Password, Type, Agent_Status) VALUES ('{name}','{contact}','{type}','{password}',{agentStatus})")
-
+    cont.execute(f"INSERT INTO business (name, contact, `password`, type, template, prompt, agentStatus) VALUES ('{name}','{contact}','{type}','{password}','{template}','{prompt}',{agentStatus})")
     connection.commit()
     connection.close
-
-addRow('test','0728000031','test','test')
