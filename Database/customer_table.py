@@ -31,5 +31,3 @@ def addRow(mobileNo, fName):
 
     connection.commit()
     connection.close()
-
-addRow('0728000031','test')
