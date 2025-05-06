@@ -17,7 +17,7 @@ def addRow(mobileNo, fName):
     cont.execute('INSERT INTO customer (mobileNo, fName, pastConversation) VALUES (?,?,?)',
                  (mobileNo, fName, pastConversation))
     
-    # DISCLAIMER: code below does not logically work.
+    # DISCLAIMER: code below does not LOGICALLY work.
     try:
         cont.execute(f"SELECT customerId FROM customer WEHRE mobileNo = '{mobileNo}'")
         customerId = cont.fetchall() # fetch customerId corresponding to phone number
