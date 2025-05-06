@@ -21,7 +21,7 @@ def addRow(name, price, description):
 
     try: 
         cont.execute('INSERT INTO product (businessId, Name, price, description) VALUES (?,?,?,?)',
-                     (int(bussIdHolder), name, price, description))
+                     (int(bussIdHolder[0][0]), name, price, description))
     except IndexError: print(f'Error: {__doc__}') # displays correct instructions (docstring) if indexerror occurs (for developer)
 
     connection.commit()
