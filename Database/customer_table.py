@@ -1,9 +1,7 @@
 import mariadb as mdb
-
 # initialization of variables 
 columnLen = 0
 id = 0
-customerId = 0
 
 connection = mdb.connect(host='localhost',user='root',password='',database='prism_ai_database')
 cont = connection.cursor() # controller to control the database
@@ -11,7 +9,7 @@ cont = connection.cursor() # controller to control the database
 def addRow(mobileNo, fName):
     '''function which can be used to add rows
     to the customer data table in the database'''
-    global customerId
+    customerId = 0
     pastConversation = 0
 
     cont.execute('INSERT INTO customer (mobileNo, fName, pastConversation) VALUES (?,?,?)',
