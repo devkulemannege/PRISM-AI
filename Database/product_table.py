@@ -1,6 +1,5 @@
 '''getBussId function should be called BEFORE addRow function is called.'''
 import mariadb as mdb
-
 # initialization of variables
 bussIdHolder = ''
 
