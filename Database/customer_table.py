@@ -21,9 +21,7 @@ def addRow(mobileNo, fName):
         customerId = cont.fetchall() # fetch customerId corresponding to phone number
 
         cont.execute(f"SELECT msgId FROM chatlog WHERE customerId = {int(customerId[0][0])}")
-        print(cont.fetchall())
         cont.execute(f"UPDATE customer SET pastConversation = 1 WEHRE customerId = {int(customerId[0][0])}") # update pastConversation column
-        print(cont.fetchall())
     except:
         pastConversation = 0
 
