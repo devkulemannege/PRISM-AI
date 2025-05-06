@@ -11,8 +11,7 @@ def addRow(mobileNo, fName):
     '''function which can be used to add rows
     to the customer data table in the database'''
     pastConversation = 0 # to be changed
-    pastPurchase = 0 # to be changed
 
-    cont.execute(f"INSERT INTO customer (Mobile_No, Fname, past_conversation, past_purchase) VALUES ('{mobileNo}','{fName}',{pastConversation},{pastPurchase})")
+    cont.execute(f"INSERT INTO customer (Mobile_No, Fname, past_conversation) VALUES ('{mobileNo}','{fName}',{pastConversation})")
     connection.commit()
     connection.close()
