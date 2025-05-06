@@ -19,7 +19,9 @@ def addRow(name, price, description):
     '''function which adds data to 
     product table of database'''
 
-    try: cont.execute(f"INSERT INTO product (businessId, Name, price, description) VALUES ({int(bussIdHolder[0][0])},'{name}','{price}','{description}')")
+    try: 
+        cont.execute('INSERT INTO product (businessId, Name, price, description) VALUES (?,?,?,?)',
+                     (int(bussIdHolder), name, price, description))
     except IndexError: print(f'Error: {__doc__}') # displays correct instructions (docstring) if indexerror occurs
 
     connection.commit()

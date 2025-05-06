@@ -12,6 +12,7 @@ def addRow(mobileNo, fName):
     to the customer data table in the database'''
     pastConversation = 0 # to be changed
 
-    cont.execute(f"INSERT INTO customer (Mobile_No, Fname, past_conversation) VALUES ('{mobileNo}','{fName}',{pastConversation})")
+    cont.execute('INSERT INTO customer (Mobile_No, Fname, past_conversation) VALUES (?,?,?)',
+                 (mobileNo, fName, pastConversation))
     connection.commit()
     connection.close()
