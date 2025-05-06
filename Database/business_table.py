@@ -1,6 +1,4 @@
-# script which imports data into the database
 import mariadb as mdb 
-
 #initalization of variables
 id = 0
 agentstatus = ''
