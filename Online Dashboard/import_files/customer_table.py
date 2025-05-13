@@ -1,15 +1,15 @@
 import connect_db
 connection, cont = connect_db.connection()
 
-def addRow(mobileNo, fName):
+def addRow(mobileNo, fName, lName, email):
     '''function which can be used to add rows
     to the customer data table in the database'''
     customerId = 0
     pastConversation = 0
     
     try:
-        cont.execute('INSERT INTO customer (mobileNo, fName, pastConversation) VALUES (?,?,?)',
-                    (mobileNo, fName, pastConversation))
+        cont.execute('INSERT INTO customer (mobileNo, fName, lName, email, pastConversation) VALUES (?,?,?,?,?)',
+                    (mobileNo, fName, lName, email, pastConversation))
     except Exception as error: 
         raise Exception(f'Error location: customer_table.py | Detailed: {error}') # Error identification
     

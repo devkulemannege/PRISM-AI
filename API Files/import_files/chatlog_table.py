@@ -31,4 +31,3 @@ def addRow(phoneNo, productId, agentMsg, customerMsg):
         raise Exception(f'Error location: chatlog_table.py | Unable to update customer pastConversation value. | Detailed: {error}') # error identification
     
     connection.commit()
-    connection.close()
