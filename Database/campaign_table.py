@@ -1,19 +1,19 @@
 import connect_db
 connection, cont = connect_db.connection()
 
-def addRow(businessId, name, template, targetProblem, targetAudience, 
+def addRow(businessId, name, prompt, template, parameters, targetProblem, targetAudience, 
            uniqueSolution, whyNeeded, mainBenefits, socialProof, price, 
            offer, urgency, cta):
     '''function which adds data to 
     product table of database'''
 
-    colNames = 'businessId, name, template, targetProblem, targetAudience, ' \
+    colNames = 'businessId, campaignNme, prompt, template, parameters, targetProblem, targetAudience, ' \
     'uniqueSolution, whyNeeded, mainBenefits, socialProof, price, offer, urgency, cta' # column names 
     try:
         cont.execute(f"INSERT INTO campaign ({colNames}) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)",
-                    (int(businessId[0][0]), name, template, targetProblem, targetAudience, 
-                    uniqueSolution, whyNeeded, mainBenefits, socialProof, price, 
-                    offer, urgency, cta))
+                    (int(businessId[0][0]), name, prompt, template, parameters, targetProblem, targetAudience, 
+                uniqueSolution, whyNeeded, mainBenefits, socialProof, price, 
+                offer, urgency, cta))
     except Exception as error:
         raise Exception(f'Error location: campaign_table.py | Detailed: {error}') # error identification
 
