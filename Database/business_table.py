@@ -13,7 +13,6 @@ def addRow(name, contact, email, password, type):
         raise Exception(f'Error location: business_table.py | Detailed: {error}') # error identification
     
     connection.commit()
-    connection.close()
 
 # for debugging puposes 
 '''

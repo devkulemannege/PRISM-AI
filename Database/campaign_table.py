@@ -18,7 +18,6 @@ def addRow(businessId, name, prompt, template, parameters, targetProblem, target
         raise Exception(f'Error location: campaign_table.py | Detailed: {error}') # error identification
 
     connection.commit()
-    connection.close()
 
 
 # below code is for debugging purposes
