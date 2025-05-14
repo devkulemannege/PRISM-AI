@@ -116,8 +116,8 @@ def call_llama(user_input, prompt):
         "model": "llama3-8b-8192",
         "messages": [
             {
-                "role": "system",
-                "content": prompt
+                "role": "system",#in here its the role of the system set the prompt
+                "content": prompt#In here its the 
             },
             {"role": "user", "content": user_input}
         ]

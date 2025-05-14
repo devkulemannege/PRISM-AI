@@ -3,7 +3,7 @@ import mariadb as mdb
 customerId = 0
 businessId = 0
 
-connection = mdb.connect(host='localhost',user='root',password='',database='prism_ai_database')
+connection = mdb.connect(host='localhost',user='root',password='',database='prismai')
 cont = connection.cursor() # controller to control the database
 
 def addRow(phoneNo, productId, agentMsg, customerMsg):

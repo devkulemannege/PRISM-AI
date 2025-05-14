@@ -1,0 +1,18 @@
+/PRISM-2.0/
+│
+├── app.py                         # Main Flask app
+├── config.py                      # Loads env vars
+├── credentials.env                # Your secrets
+├── requirements.txt               # Add Flask, requests, mysql-connector-python
+│
+├── routes/
+│   └── whatsapp_routes.py         # All webhook & template endpoints
+│
+├── services/
+│   ├── whatsapp_api.py            # send_whatsapp_message, send_template
+│   ├── groq_llm.py                # call_llama()
+│   └── campaign_service.py        # send_template_to_all, send_template_cli
+│
+├── db/
+│   ├── connection.py              # get_db_connection()
+│   └── chatlog.py                 # save_conversation
