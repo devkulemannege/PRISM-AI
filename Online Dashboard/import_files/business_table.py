@@ -1,18 +1,29 @@
-import mariadb as mdb 
-#initalization of variables
-id = 0
-agentstatus = ''
+import connect_db
+connection, cont = connect_db.connection()
 
-connection = mdb.connect(host='localhost',user='root',password='',database='prism_ai_database')
-cont = connection.cursor() # controller to control the database
-
-def addRow(name, contact, password, type, template, prompt):
+def addRow(name, contact, email, password, type):
     '''function which can be used to add rows 
     to the business data table in the database'''
     agentStatus = 0 # to be changed later
 
-    cont.execute('INSERT INTO business (name, contact, `password`, type, template, `prompt`, agentStatus) VALUES (?, ?, ?, ?, ?, ?, ?)',
-                (name, contact, password, type, template, prompt, agentStatus))
+    try:
+        cont.execute('INSERT INTO business (name, contact, email, `password`, agentStatus) VALUES (?, ?, ?, ?, ?, ?)',
+                    (name, contact, email, password, type, agentStatus))
+    except Exception as error: 
+        raise Exception(f'Error location: business_table.py | Detailed: {error}') # error identification
     
     connection.commit()
-    connection.close
+
+# for debugging puposes 
+'''
+# Test values
+name = "Alice"
+contact = "+1234567890"
+password = "secureP@ss123"
+type = "admin"
+prompt = "Generate a product description for a new smart home device."
+parameters = "{'tone': 'professional', 'length': 'short', 'language': 'English'}"
+
+# Test the function
+addRow(name, contact, password, type, prompt, parameters)
+'''
