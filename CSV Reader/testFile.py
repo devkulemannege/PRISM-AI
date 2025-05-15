@@ -1,9 +1,11 @@
 import store_headers
 dict = store_headers.colHeaders()
 tempFirstNameHolder = []
-cell = 'Ravish Devpriya Kulemannege'
+secondaryFirstNameholder = []
+cell = 'Thinal Pamula Ravish Devpriya Kulemannege'
 spaceCount = 0
 secondarySpaceCount = 0
+count = 0
 
 cell = cell.strip() # remove unneccesary whitespaces 
 for i in cell:
@@ -12,12 +14,22 @@ for i in cell:
 
 if spaceCount == 1:
     for i in cell:
+        if i == ' ': break
         tempFirstNameHolder.append(i)
+    strNameHolder = ''.join(map(str, tempFirstNameHolder))
 else:
+    
     for i in cell:
-        if i == ' ': secondarySpaceCount = 1
-        if secondarySpaceCount == spaceCount-1 and spaceCount > 1: break
+        count += 1
+        if i == ' ': secondarySpaceCount += 1
+        if secondarySpaceCount == spaceCount:break
         tempFirstNameHolder.append(i) # add characters 
 
-strNameHolder = ''.join(map(str, tempFirstNameHolder))
-print(strNameHolder)
+    for i in tempFirstNameHolder:
+        if i == ' ': break
+        secondaryFirstNameholder.append(i)
+    
+    strNameHolder = ''.join(map(str, secondaryFirstNameholder))
+
+print(f'Last name: {cell[count:]}')
+print(f'First name: {strNameHolder}')
