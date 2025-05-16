@@ -38,7 +38,7 @@ def identifyCSV(file):
                         count += 1 # keeps track for str indexing
                         if i == ' ': break
                         tempFirstNameHolder.append(i) 
-                    finalValueHolder = ''.join(map(str, tempFirstNameHolder)) # converty from list ot str                              
+                    finalValueHolder = ''.join(map(str, tempFirstNameHolder)) # convert from list ot str                              
                 else: 
                     for i in cell:
                         count += 1
