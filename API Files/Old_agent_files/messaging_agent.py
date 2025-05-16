@@ -59,6 +59,7 @@ def save_conversation(phone, user_msg, ai_reply):
 
 # WhatsApp - Send Free-form Message
 def send_whatsapp_message(phone, msg):
+    """Send a free-form message to a WhatsApp number."""
     url = f"https://graph.facebook.com/v19.0/{PHONE_NUMBER_ID}/messages"
     headers = {
         "Authorization": f"Bearer {ACCESS_TOKEN}",
@@ -76,6 +77,7 @@ def send_whatsapp_message(phone, msg):
 
 # WhatsApp - Send Template Message
 def send_template(phone, template_name, parameters=None):
+    """Send a template message to a WhatsApp number."""
     url = f"https://graph.facebook.com/v19.0/{PHONE_NUMBER_ID}/messages"
     headers = {
         "Authorization": f"Bearer {ACCESS_TOKEN}",
@@ -107,6 +109,7 @@ def send_template(phone, template_name, parameters=None):
 
 # Groq - Call LLaMA 4 Model
 def call_llama(user_input, prompt):
+    """"""
     url = "https://api.groq.com/openai/v1/chat/completions"
     headers = {
         "Authorization": f"Bearer {GROQ_API_KEY}",
@@ -136,6 +139,7 @@ def call_llama(user_input, prompt):
         return "Sorry, I couldn't process your request right now. Please try again later."
 
 def send_template_to_all(business_id):
+    """This funtion is to send template massage to all the customers in a business"""
     connection = get_db_connection()
     if connection is None:
         return
@@ -236,6 +240,7 @@ def verify():
 
 @app.route("/webhook", methods=["POST"])
 def webhook():
+    # Handle incoming messages from WhatsApp
     data = request.json
     print(f"Incoming webhook data: {data}")
     try:
@@ -299,6 +304,8 @@ def webhook():
 # API Endpoints
 @app.route("/send-template", methods=["POST"])
 def send_template_route():
+    """Send a template message to a specific phone number."""
+    # Endpoint to send a template message
     data = request.json
     phone = data.get("phone")
     template_name = data.get("template_name", "test_template")
@@ -308,6 +315,7 @@ def send_template_route():
 
 @app.route("/send-to-all", methods=["POST"])
 def send_to_all_route():
+    # Endpoint to send a template to all customers associated with a business
     data = request.json
     business_id = data.get("business_id", 1)  # Default to 1 if not provided
     send_template_to_all(business_id)
