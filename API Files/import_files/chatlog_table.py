@@ -1,14 +1,5 @@
-
-import mariadb as mdb
-# initialization of variables
-customerId = 0
-businessId = 0
-
-connection = mdb.connect(host='localhost',user='root',password='',database='prismai')
-cont = connection.cursor() # controller to control the database
-
-
-
+import connect_db
+connection, cont = connect_db.connection()
 
 def addRow(phoneNo, productId, agentMsg, customerMsg):
     '''function which can be used to add data into chatlog table

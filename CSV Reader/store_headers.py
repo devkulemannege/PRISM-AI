@@ -1,7 +1,21 @@
 def colHeaders():
     '''stores column header presets'''
 
-    colHeaders = {
+    colHeadersDict = {
+        'nameHeaders' : ["name", "full_name", "fullname", "person_name", "contact_name",
+                        "user_name", "customer_name", "employee_name", "client_name",
+                        "Name", "Full_Name", "FullName", "Person_Name", "Contact_Name",
+                        "User_Name", "Customer_Name", "Employee_Name", "Client_Name",
+                        "name_full", "full name", "complete_name", "entire_name",
+                        "Name (User)", "Employee Name", "Customer Name", "Contact Name",
+                        "user_full_name", "customer_full_name", "person_full_name",
+                        "name_full", "name_complete", "name_entire", "name_full_text",
+                        "nameText", "nameString", "nameStr", "nameVal", "name_value",
+                        "full_name_text", "full_name_string", "full_name_str", "full_name_val",
+                        "primary_name", "initial_name", "display_name", "profile_name",
+                        "registered_name", "contact_full_name", "user_full_name",
+                        "user_profile_name", "customer_profile_name", "client_full_name"],
+
         'firstNameHeaders' : ["first_name", "firstname", "fname", "f_name", "name_first",
                             "firstName", "fName", "user_first_name", "customer_first_name",
                             "employee_first_name", "contact_first_name", "f_name", "fName",
@@ -42,4 +56,4 @@ def colHeaders():
                             "user_phone_number", "primary_mobile_number", "secondary_mobile_number"],
                                                     
     }
-    return colHeaders
+    return colHeadersDict
