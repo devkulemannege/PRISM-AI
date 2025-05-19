@@ -1,4 +1,5 @@
 import pandas 
+import customer_table
 import store_headers
 
 def identifyCSV(file):
@@ -17,7 +18,7 @@ def identifyCSV(file):
 
     for row in range(len(data)):
         for col in range(len(data.columns)):
-            cell = data.iloc[row, col] # read every cell in CSV
+            cell = str(data.iloc[row, col]).strip() # read every cell in CSV
 
             if data.columns[col] in colHeaderDict['nameHeaders']: # if full name is under one column (SCENARIO 1)
                 # initialize variables for scenario 1
@@ -28,7 +29,6 @@ def identifyCSV(file):
                 secondarySpaceCount = 0
                 count = 0
 
-                cell = cell.strip() # remove front & end whitespaces 
                 for i in cell:
                     if i == ' ':
                         spaceCount += 1
@@ -54,5 +54,21 @@ def identifyCSV(file):
                 oneInstance['fName'] = finalValueHolder # save first name to dictionary
                 oneInstance['lName'] = cell[count:] # save last name to dictionary
 
+            elif data.columns[col] in colHeaderDict['firstNameHeaders']: # if cell contains first name data
+                oneInstance['fName'] = cell
+            
+            elif data.columns[col] in colHeaderDict['lastNameHeaders']: # if cell contains last name data
+                oneInstance['lName'] = cell
+            
+            elif data.columns[col] in colHeaderDict['emailHeaders']: # if cell contains email data
+                oneInstance['email'] = cell
+
+            elif data.columns[col] in colHeaderDict['mobileNumHeaders']: # if cell contains mobile number data
+                oneInstance['mobileNo'] = cell
+
+            else: print(f'Column header not identified for cell address {row+1, col+1}')
+
+        customer_table.addRow(oneInstance['mobileNo'], oneInstance['fName'], oneInstance['lName'], oneInstance['email']) # send data to database table
+
 # debug
-identifyCSV()
+identifyCSV('CSV Reader\\TestFile..csv') # send csv file to function
