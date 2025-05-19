@@ -42,7 +42,7 @@ def colHeaders():
                         "Contact_Email", "Email_Address_1", "Email_Address_User", "EmailAddr",
                         "EmailAddress", "User_Email_Address", "Primary_Email", "Secondary_Email",
                         "email", "emailAddress", "user_email", "customer_email", "contact_email",
-                        "email_addr", "user_email_id", "primary_email_address", "secondary_email_address"],
+                        "email_addr", "user_email_id", "primary_email_address", "secondary_email_address", "Email Address"],
 
         'mobileNumHeaders' : ["mobile_number", "mobile", "phone_number", "phone", "cell_number", 
                             "cell_phone", "user_mobile", "user_phone", "contact_number", "contact_phone",
@@ -53,7 +53,7 @@ def colHeaders():
                             "Mobile_Phone", "Mobile_Number_1", "Mobile_Number_User", "MobileNo",
                             "MobileNumber", "User_Mobile_Number", "Primary_Mobile", "Secondary_Mobile",
                             "mobile", "mobileNumber", "user_mobile", "contact_mobile", "mobile_number", 
-                            "user_phone_number", "primary_mobile_number", "secondary_mobile_number","digit","Digit"],
+                            "user_phone_number", "primary_mobile_number", "secondary_mobile_number","digit","Digit","Mobile Number"],
                                                     
     }
     return colHeadersDict
