@@ -1,18 +1,17 @@
 from flask import Flask, render_template, request, redirect, url_for, session
-import mariadb
 import random
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'Database')))
+from connect_db import connection
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'
 
 # Database connection
 def get_db_connection():
-    return mariadb.connect(
-        host='localhost',
-        user='root',
-        password='',
-        database='prism_ai_database'
-    )
+    conn, cur = connection()
+    return conn
 
 # Home redirects to login
 @app.route('/')
@@ -123,6 +122,38 @@ With {main_benefits}, it’s not just powerful, it’s also incredibly easy to u
 Normally, you’d pay {price} for this kind of breakthrough. But for a short time, you get {offer}. {urgency} — so if you’re serious about changing your life, this is your moment.
 
 {cta}"""
+
+    # Save campaign to database
+    conn = get_db_connection()
+    cur = conn.cursor()
+    # Get businessId for current user
+    cur.execute("SELECT businessId FROM business WHERE name=?", (session['name'],))
+    business_id_row = cur.fetchone()
+    if business_id_row:
+        business_id = business_id_row[0]
+        # Insert into campaign table
+        cur.execute("""
+            INSERT INTO campaign (businessId, campaignName, prompt, template, parameters, targetProblem, targetAudience, uniqueSolution, whyNeeded, mainBenefits, socialProof, price, offer, urgency, cta)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """, (
+            business_id,
+            product_name,
+            prompt,  # Save the generated prompt
+            '',      # template (not provided in form)
+            '',      # parameters (not provided in form)
+            target_problem,
+            target_audience,
+            unique_solution,
+            reason_why_needed,
+            main_benefits,
+            social_proof,
+            price,
+            offer,
+            urgency,
+            cta
+        ))
+        conn.commit()
+    conn.close()
 
     return render_template('result.html', prompt=prompt)
 
