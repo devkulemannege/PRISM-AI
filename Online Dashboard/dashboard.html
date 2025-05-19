@@ -2,7 +2,7 @@
 <html>
 <head>
     <title>Dashboard</title>
-    <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="container">
@@ -10,10 +10,9 @@
         <p>This is your secure dashboard.</p>
 
         <div class="button-group">
-            <form action="/sell-product" method="GET" style="display: inline;">
+            <form action="/product" method="GET">
                 <button type="submit">Sell New Product</button>
             </form>
-
             <a href="{{ url_for('logout') }}" class="button-link">Logout</a>
         </div>
     </div>

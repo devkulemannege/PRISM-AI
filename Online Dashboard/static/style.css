@@ -1,0 +1,176 @@
+/* PRISM-AI Dashboard CSS
+    Theme: White & Green, Modern, Clean, Professional, UX-focused
+*/
+
+body {
+    font-family: 'Segoe UI', 'Inter', Arial, sans-serif;
+    background: linear-gradient(120deg, #e8f5e9 0%, #ffffff 100%);
+    min-height: 100vh;
+    margin: 0;
+    padding: 0;
+    color: #1b3c1b;
+}
+
+.container {
+    background: #fff;
+    max-width: 440px;
+    margin: 64px auto 0 auto;
+    border-radius: 18px;
+    box-shadow: 0 8px 32px rgba(34, 139, 34, 0.10), 0 1.5px 4px rgba(0,0,0,0.04);
+    padding: 48px 36px 36px 36px;
+    text-align: center;
+    transition: box-shadow 0.2s;
+}
+
+.container:hover {
+    box-shadow: 0 12px 40px rgba(34, 139, 34, 0.16), 0 2px 8px rgba(0,0,0,0.06);
+}
+
+h1, h2 {
+    color: #219150;
+    margin-bottom: 18px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+h1 {
+    font-size: 2.2rem;
+}
+
+h2 {
+    font-size: 1.5rem;
+}
+
+p {
+    color: #2e4d2e;
+    margin-bottom: 28px;
+    font-size: 1.08rem;
+    line-height: 1.6;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    align-items: stretch;
+    margin-bottom: 18px;
+}
+
+label {
+    margin-bottom: 6px;
+    font-weight: 600;
+    color: #1b3c1b;
+    text-align: left;
+    font-size: 1rem;
+}
+
+input[type="text"],
+input[type="password"],
+input[type="tel"],
+input[type="email"] {
+    padding: 13px 14px;
+    border: 1.5px solid #b2dfdb;
+    border-radius: 8px;
+    outline: none;
+    font-size: 1rem;
+    background: #f8fff8;
+    color: #1b3c1b;
+    transition: border 0.3s, box-shadow 0.2s;
+    box-shadow: 0 1px 2px rgba(34, 139, 34, 0.03);
+}
+
+input[type="text"]:focus,
+input[type="password"]:focus,
+input[type="tel"]:focus,
+input[type="email"]:focus {
+    border-color: #219150;
+    box-shadow: 0 0 0 2px #b2f2c9;
+}
+
+button,
+.button-link,
+a.button-link {
+    background: linear-gradient(90deg, #43ea7f 0%, #219150 100%);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 13px 0;
+    font-size: 1.08rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
+    box-shadow: 0 2px 8px rgba(34, 139, 34, 0.10);
+    text-decoration: none;
+    margin: 0 0 0 0;
+    display: block;
+}
+
+button:hover,
+.button-link:hover,
+a.button-link:hover {
+    background: linear-gradient(90deg, #219150 0%, #43ea7f 100%);
+    box-shadow: 0 4px 16px rgba(34, 139, 34, 0.15);
+    transform: translateY(-2px) scale(1.03);
+}
+
+.button-group {
+    display: flex;
+    justify-content: center;
+    gap: 18px;
+    margin-top: 32px;
+    flex-wrap: wrap;
+}
+
+.button-link {
+    line-height: 38px;
+    padding: 0 28px;
+}
+
+form button {
+    width: 100%;
+    margin-top: 0;
+}
+
+/* Links */
+a {
+    color: #219150;
+    text-decoration: underline;
+    transition: color 0.2s;
+}
+a:hover {
+    color: #176c3a;
+}
+
+/* Responsive Design */
+@media (max-width: 600px) {
+    .container {
+        max-width: 98vw;
+        padding: 18px 4vw;
+    }
+    .button-group {
+        flex-direction: column;
+        gap: 12px;
+    }
+    h1, h2 {
+        font-size: 1.2rem;
+    }
+}
+
+/* Result Page Prompt Styling */
+.result-prompt {
+    background: #f8fff8;
+    border-left: 4px solid #43ea7f;
+    padding: 18px 18px 18px 24px;
+    border-radius: 8px;
+    color: #1b3c1b;
+    font-size: 1.08rem;
+    margin-bottom: 32px;
+    box-shadow: 0 2px 8px rgba(34, 139, 34, 0.06);
+}
+
+/* Subtle Animations */
+@media (prefers-reduced-motion: no-preference) {
+    .container, button, .button-link, input, .result-prompt {
+        transition: all 0.2s cubic-bezier(.4,0,.2,1);
+    }
+}
