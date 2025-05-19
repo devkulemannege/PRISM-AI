@@ -111,36 +111,34 @@ def generate_prompt():
     offer = request.form['offer']
     urgency = request.form['urgency']
     cta = request.form['cta']
+    product_type = request.form['product_type']
 
-    # Prompt paragraph template
-    prompt = f"""Hey I'm PRISM AI!. See this, {target_problem}. Every {target_audience} has felt it — the constant struggle, the wasted hours, the missed opportunities. That’s when we decided enough was enough. We created {product_name}, not just as another tool, but as a complete transformation.
+    # Prompt templates for each product type
+    recurrent_prompt = f"""Hey, PRISM AI here! {target_problem} is a challenge every {target_audience} faces, day in and day out. That's why we created {product_name}—a solution designed for ongoing value. With {unique_solution}, you'll never have to worry about {target_problem} again. Now is the perfect time: {reason_why_needed}. Enjoy continuous benefits like {main_benefits}. See what others say: {social_proof}. Normally {price}, but now {offer}. {urgency} Don't miss out on a better future—{cta}"""
 
-Unlike anything you’ve tried before, {product_name} offers {unique_solution}, finally giving you control over {target_problem}. And now more than ever, {reason_why_needed} — the timing couldn’t be more perfect.
+    one_time_prompt = f"""PRISM AI presents: {product_name}! If you've ever struggled with {target_problem}, you're not alone. {product_name} is a one-time breakthrough for {target_audience}, offering {unique_solution}. Why now? {reason_why_needed}. Key benefits: {main_benefits}. Hear from our users: {social_proof}. Usual price: {price}, special offer: {offer}. {urgency} Act fast—{cta}"""
 
-With {main_benefits}, it’s not just powerful, it’s also incredibly easy to use. People are already seeing amazing results — just look at this: {social_proof}.
+    # Choose prompt based on product type
+    if product_type == "Recurrent Selling Product":
+        prompt = recurrent_prompt
+    else:
+        prompt = one_time_prompt
 
-Normally, you’d pay {price} for this kind of breakthrough. But for a short time, you get {offer}. {urgency} — so if you’re serious about changing your life, this is your moment.
-
-{cta}"""
-
-    # Save campaign to database
+    # Save campaign to database (add ProductType column)
     conn = get_db_connection()
     cur = conn.cursor()
-    # Get businessId for current user
     cur.execute("SELECT businessId FROM business WHERE name=?", (session['name'],))
     business_id_row = cur.fetchone()
     if business_id_row:
         business_id = business_id_row[0]
-        # Insert into campaign table
         cur.execute("""
-            INSERT INTO campaign (businessId, campaignName, prompt, template, parameters, targetProblem, targetAudience, uniqueSolution, whyNeeded, mainBenefits, socialProof, price, offer, urgency, cta)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO campaign (businessId, campaignName, prompt, template, parameters, targetProblem, targetAudience, uniqueSolution, whyNeeded, mainBenefits, socialProof, price, offer, urgency, cta, ProductType)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """, (
             business_id,
             product_name,
-            prompt,  # Save the generated prompt
-            '',      # template (not provided in form)
-            '',      # parameters (not provided in form)
+            prompt,
+            '', '',
             target_problem,
             target_audience,
             unique_solution,
@@ -150,7 +148,8 @@ Normally, you’d pay {price} for this kind of breakthrough. But for a short tim
             price,
             offer,
             urgency,
-            cta
+            cta,
+            product_type
         ))
         conn.commit()
     conn.close()
