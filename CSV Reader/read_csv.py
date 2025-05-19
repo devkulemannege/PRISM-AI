@@ -20,8 +20,8 @@ def identifyCSV(file):
         for col in range(len(data.columns)):
             cell = str(data.iloc[row, col]).strip() # read every cell in CSV
 
-            if data.columns[col] in colHeaderDict['nameHeaders']: # if full name is under one column (SCENARIO 1)
-                # initialize variables for scenario 1
+            if data.columns[col] in colHeaderDict['nameHeaders']: # if full name is under one column 
+                # initialize variables for particular scenario
                 tempFirstNameHolder = []
                 secondaryFirstNameHolder = []
                 finalValueHolder = ''
