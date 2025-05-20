@@ -9,6 +9,7 @@ from flask import Blueprint, request, jsonify
 from agent.inbound_reply import send_whatsapp_message 
 from agent.outbound_temp import send_template, send_template_to_all
 from agent.call_llama import call_llama
+from db.chatlog_table import addRow
 from db.connection import get_db_connection
 from mysql.connector import Error
 
@@ -39,11 +40,11 @@ def webhook():
                 change = entry["changes"][0]
                 if "value" in change and "messages" in change["value"]:
                     message = change["value"]["messages"][0]
-                    sender = message["from"]
+                    customerMsg = message["from"]
                     text = message.get("text", {}).get("body", "No text")
-                    print(f"Received message from {sender}: {text}")
+                    print(f"Received message from {customerMsg}: {text}")
 
-                    # Fetch the dynamic prompt based on the sender's phone number
+                    # Fetch the dynamic prompt based on the customerMsg's phone number
                     connection = get_db_connection()
                     prompt = "You are a friendly and concise WhatsApp bot. Respond in a helpful and conversational tone as a real sales agent, keeping replies under 100 words."
                     business_name = None
@@ -53,7 +54,7 @@ def webhook():
                         cursor = connection.cursor()
                         try:
                             # Look up customerId based on mobileNo
-                            cursor.execute("SELECT customerId, fName FROM customer WHERE mobileNo = %s", (sender,))
+                            cursor.execute("SELECT customerId, fName FROM customer WHERE mobileNo = %s", (customerMsg,))
                             customer_row = cursor.fetchone()
                             if customer_row:
                                 customer_id, customer_name = customer_row
@@ -73,7 +74,7 @@ def webhook():
                                 else:
                                     print("No business associated with customer, using default prompt")
                             else:
-                                print("No customer found for sender, using default prompt")
+                                print("No customer found for customerMsg, using default prompt")
                         except Error as e:
                             print(f"Database error fetching prompt: {e}")
                         finally:
@@ -83,9 +84,9 @@ def webhook():
                         print("Database connection failed, using default prompt")
 
                     # Generate AI reply with dynamic prompt
-                    ai_reply = call_llama(text, prompt)
-                    send_whatsapp_message(sender, ai_reply)
-                    save_conversation(sender, text, ai_reply)
+                    agentMsg = call_llama(text, prompt)#calls the LLM with the text and prompt
+                    send_whatsapp_message(customerMsg, agentMsg)#calls the function to send the message
+                    addRow(customerMsg, text, agentMsg)#calls the function to add the row to the chatlog table
     except Exception as e:
         print(f"Webhook Error: {e}")
     return "OK", 200

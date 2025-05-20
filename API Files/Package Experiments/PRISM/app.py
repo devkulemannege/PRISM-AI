@@ -3,7 +3,7 @@
 # Description: This module is the main entry point for the application. It initializes the Flask app, loads environment variables, and sets up the database connection.
 
 
-import config
+
 from flask import Flask
 from routes.whatsapp_routes import whatsapp_bp
 from agent.outbound_temp import send_template_to_all, send_template

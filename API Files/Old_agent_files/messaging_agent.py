@@ -41,14 +41,33 @@ def get_db_connection():
         return None
 
 def save_conversation(phone, user_msg, ai_reply):
+    """Save the conversation to the database."""
     connection = get_db_connection()
+    #to get details of the customer
+    cursor = connection.cursor()
+    try:
+        cursor.execute("SELECT customerId FROM customer WHERE mobileNo = %s", (phone,))
+        customer_row = cursor.fetchone()
+        customer_id = customer_row[0] if customer_row else None
+        if not customer_id:
+            print(f"No customer found with phone number {phone}")
+            return
+        cursor.execute("SELECT businessId FROM customer_business WHERE customerId = %s", (customer_id,))
+        customer_row = cursor.fetchone()
+        if not customer_row:
+            print(f"No business found with customer {customer_id}")
+            return
+        campaign_id = customer_row[0]
+    except Error as e:
+        print(f"Error fetching customer details: {e}")
+        return
     if connection is None:
         return
     cursor = connection.cursor()
     try:
         cursor.execute(
-            "INSERT INTO chats (phone, user_msg, ai_reply) VALUES (%s, %s, %s)",
-            (phone, user_msg, ai_reply)
+            "INSERT INTO chatlog (customerId, businessId, LLM_msg, customer_msg) VALUES (%s, %s, %s)",
+            (customer_id, campaign_id, ai_reply, user_msg)
         )
         connection.commit()
     except Error as e:
@@ -120,7 +139,7 @@ def call_llama(user_input, prompt):
         "messages": [
             {
                 "role": "system",#in here its the role of the system set the prompt
-                "content": prompt#In here its the 
+                "content": prompt#In here its the propmt given by us to the LLM
             },
             {"role": "user", "content": user_input}
         ]
@@ -138,7 +157,7 @@ def call_llama(user_input, prompt):
         print(f"Groq API Request Failed: {e}")
         return "Sorry, I couldn't process your request right now. Please try again later."
 
-def send_template_to_all(business_id):
+def send_template_to_all(campaign_id):
     """This funtion is to send template massage to all the customers in a business"""
     connection = get_db_connection()
     if connection is None:
@@ -147,34 +166,34 @@ def send_template_to_all(business_id):
     cursor = connection.cursor()
     try:
         # Check if the business exists and fetch its details
-        cursor.execute("SELECT name, template, prompt, template_parameters FROM business WHERE businessId = %s", (business_id,))
+        cursor.execute("SELECT * FROM campaign WHERE campaignId = %s", (campaign_id,))
         business_row = cursor.fetchone()
         if not business_row:
-            print(f"No business found with businessId = {business_id}, aborting...")
+            print(f"No campaign found with campaignId = {campaign_id}, aborting...")
             return
 
-        business_name = business_row[0]
-        template_name = business_row[1]
-        prompt = business_row[2]
-        template_params = business_row[3].split(',') if business_row[3] else ['customer_name', 'business_name']
-        print(f"Business details: businessId={business_id}, name={business_name}, template={template_name}, prompt={prompt}, params={template_params}")
+        campaign_name = business_row[2]
+        template_name = business_row[4]
+        prompt = business_row[3]
+        template_params = business_row[5].split(',') if business_row[3] else ['customer_name', 'campaign_name']#to get the template parameters
+        print(f"Business details: businessId={campaign_id}, name={campaign_name}, template={template_name}, prompt={prompt}, params={template_params}")
 
         if not template_name:
-            print(f"No template specified for businessId = {business_id}, aborting...")
+            print(f"No template specified for businessId = {campaign_id}, aborting...")
             return
 
         # Fetch all customers associated with the business
         cursor.execute("""
             SELECT c.customerId, c.fName, c.mobileNo
             FROM customer c
-            JOIN customer_business cb ON c.customerId = cb.customerId
-            WHERE cb.businessId = %s
-        """, (business_id,))
+            JOIN customer_campaign cb ON c.customerId = cb.customerId
+            WHERE cb.campaignId = %s
+        """, (campaign_id,))
         customers = cursor.fetchall()
-        print(f"Found {len(customers)} customers associated with businessId={business_id}")
+        print(f"Found {len(customers)} customers associated with businessId={campaign_id}")
 
         if not customers:
-            print(f"No customers found for businessId = {business_id}, aborting...")
+            print(f"No customers found for businessId = {campaign_id}, aborting...")
             return
 
         # For each customer, send the template message
@@ -189,20 +208,21 @@ def send_template_to_all(business_id):
                 continue
 
             # Format the customer's phone number
-            if not customer_phone.startswith('+'):
-                if customer_phone.startswith('0'):
-                    customer_phone = customer_phone[1:]
-                customer_phone = f"+94{customer_phone}"
+
+            if customer_phone.startswith('0'):
+               customer_phone = customer_phone[1:]
+            customer_phone = f"+94{customer_phone}"
             print(f"Formatted customer phone: {customer_phone}")
+            
 
             # Prepare dynamic parameters based on template_parameters
             parameters = []
             if 'customer_name' in template_params:
                 parameters.append({"type": "text", "text": customer_name})
             if 'business_name' in template_params:
-                parameters.append({"type": "text", "text": business_name})
-            if 'description' in template_params or 'product_name' in template_params:
-                cursor.execute("SELECT description, name FROM product WHERE businessId = %s LIMIT 1", (business_id,))
+                parameters.append({"type": "text", "text": campaign_name})
+            if 'description' in template_params or 'product_name' in template_params:#In here description and all the parameter names should be the same with the database need to be changed with offer
+                cursor.execute("SELECT offer, campaignName FROM campaign WHERE campaignId = %s LIMIT 1", (campaign_id,))
                 product_row = cursor.fetchone()
                 if product_row and 'description' in template_params:
                     parameters.append({"type": "text", "text": product_row[0]})
@@ -210,6 +230,7 @@ def send_template_to_all(business_id):
                     parameters.append({"type": "text", "text": product_row[1]})
 
             print(f"Sending template {template_name} to {customer_phone} with parameters {parameters}")
+            print(f"Template expects {len(parameters)} parameters: {parameters}")
             send_template(customer_phone, template_name, parameters)
             time.sleep(1)
     except Error as e:
@@ -257,7 +278,7 @@ def webhook():
                     # Fetch the dynamic prompt based on the sender's phone number
                     connection = get_db_connection()
                     prompt = "You are a friendly and concise WhatsApp bot. Respond in a helpful and conversational tone as a real sales agent, keeping replies under 100 words."
-                    business_name = None
+                    campaign_name = None
                     customer_name = None
 
                     if connection:
@@ -277,10 +298,10 @@ def webhook():
                                 """, (customer_id,))
                                 business_row = cursor.fetchone()
                                 if business_row:
-                                    business_id, business_name, prompt = business_row
-                                    print(f"Found businessId={business_id}, business_name={business_name} with prompt: {prompt}")
-                                    # Format the prompt with customer_name and business_name
-                                    prompt = prompt.format(customer_name=customer_name, business_name=business_name)
+                                    campaign_id, campaign_name, prompt = business_row
+                                    print(f"Found businessId={campaign_id}, campaign_name={campaign_name} with prompt: {prompt}")
+                                    # Format the prompt with customer_name and campaign_name
+                                    prompt = prompt.format(customer_name=customer_name, campaign_name=campaign_name)
                                 else:
                                     print("No business associated with customer, using default prompt")
                             else:
@@ -317,8 +338,8 @@ def send_template_route():
 def send_to_all_route():
     # Endpoint to send a template to all customers associated with a business
     data = request.json
-    business_id = data.get("business_id", 1)  # Default to 1 if not provided
-    send_template_to_all(business_id)
+    campaign_id = data.get("campaign_id", 1)  # Default to 1 if not provided
+    send_template_to_all(campaign_id)
     return "Templates sent to customers", 200
 
 # Main
@@ -352,8 +373,8 @@ if __name__ == "__main__":
         parameters = [{"type": "text", "text": param} for param in params]
         send_template_cli(phone, template_name, parameters)
     elif args.send_to_all:
-        business_id = int(args.send_to_all[0])  # Convert to integer
-        send_template_to_all(business_id)
+        campaign_id = int(args.send_to_all[0])  # Convert to integer
+        send_template_to_all(campaign_id)
     else:
         print("Starting Flask app for inbound messaging on port 8080...")
         app.run(host="0.0.0.0", port=8080, debug=True)
