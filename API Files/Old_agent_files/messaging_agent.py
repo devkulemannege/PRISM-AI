@@ -9,9 +9,10 @@ import time
 import argparse
 import sys
 from flask import Flask, request
+from llm_chain import initialize_llm_chain, call_llm_with_chain
 
 # Load environment variables
-load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), "credentials.env"))
+load_dotenv(dotenv_path=os.path.abspath(os.path.join(os.path.dirname(__file__), "credentials.env")))
 ACCESS_TOKEN = os.getenv("ACCESS_TOKEN")
 PHONE_NUMBER_ID = os.getenv("PHONE_NUMBER_ID")
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
@@ -27,56 +28,6 @@ print(f"Loaded PHONE_NUMBER_ID: {PHONE_NUMBER_ID}")
 
 # Initialize Flask
 app = Flask(__name__)
-
-"""# MariaDB Connection
-def get_db_connection():
-    try:
-        connection = mysql.connector.connect(
-            host=DB_HOST,
-            user=DB_USER,
-            password=DB_PASSWORD,
-            database=DB_NAME
-        )
-        return connection
-    except Error as e:
-        print(f"Error connecting to MariaDB: {e}")
-        return None"""
-
-"""def save_conversation(phone, user_msg, ai_reply):
-    """"""
-    connection = get_db_connection()
-    #to get details of the customer
-    cursor = connection.cursor()
-    try:
-        cursor.execute("SELECT customerId FROM customer WHERE mobileNo = %s", (phone,))
-        customer_row = cursor.fetchone()
-        customer_id = customer_row[0] if customer_row else None
-        if not customer_id:
-            print(f"No customer found with phone number {phone}")
-            return
-        cursor.execute("SELECT campaignId FROM customer_business WHERE customerId = %s", (customer_id,))
-        customer_row = cursor.fetchone()
-        if not customer_row:
-            print(f"No campaign found with customer {customer_id}")
-            return
-        campaign_id = customer_row[0]
-    except Error as e:
-        print(f"Error fetching customer details: {e}")
-        return
-    if connection is None:
-        return
-    cursor = connection.cursor()
-    try:
-        cursor.execute(
-            "INSERT INTO chatlog (customerId, campaignId, LLM_msg, customer_msg) VALUES (%s, %s, %s, %s)",
-            (customer_id, campaign_id, ai_reply, user_msg)
-        )
-        connection.commit()
-    except Error as e:
-        print(f"Error saving conversation: {e}")
-    finally:
-        cursor.close()
-        connection.close()"""
 
 # WhatsApp - Send Free-form Message
 def send_whatsapp_message(phone, msg):
@@ -128,44 +79,12 @@ def send_template(phone, template_name, parameters=None):
     print(f"WhatsApp API Response for {phone}: {res.json()}")
     return res.json()
 
-# Groq - Call LLaMA 4 Model
-def call_llama(user_input, prompt):
-    """"""
-    url = "https://api.groq.com/openai/v1/chat/completions"
-    headers = {
-        "Authorization": f"Bearer {GROQ_API_KEY}",
-        "Content-Type": "application/json"
-    }
-    data = {
-        "model": "llama3-8b-8192",
-        "messages": [
-            {
-                "role": "system",#in here its the role of the system set the prompt
-                "content": prompt#In here its the propmt given by us to the LLM
-            },
-            {"role": "user", "content": user_input}
-        ]
-    }
-    try:
-        res = requests.post(url, headers=headers, json=data)
-        res.raise_for_status()
-        response_json = res.json()
-        print(f"Groq API Response: {response_json}")
-        if 'choices' not in response_json:
-            print(f"Groq API Error: {response_json.get('error', 'Unknown error')}")
-            return "Sorry, I couldn't process your request right now. Please try again later."
-        return response_json['choices'][0]['message']['content']
-    except Exception as e:
-        print(f"Groq API Request Failed: {e}")
-        return "Sorry, I couldn't process your request right now. Please try again later."
-
 def send_template_to_all(campaign_id):
-    """This funtion is to send template massage to all the customers in a campaign"""
-    connection = get_db_connection()
+    """This function is to send template messages to all the customers in a campaign"""
+    connection, cursor = get_db_connection()
     if connection is None:
         return
 
-    cursor = connection.cursor()
     try:
         # Check if the campaign exists and fetch its details
         cursor.execute("SELECT * FROM campaign WHERE campaignId = %s", (campaign_id,))
@@ -177,7 +96,7 @@ def send_template_to_all(campaign_id):
         campaign_name = business_row[2]
         template_name = business_row[4]
         prompt = business_row[3]
-        template_params = business_row[5].split(',') if business_row[3] else ['customer_name', 'campaign_name']#to get the template parameters
+        template_params = business_row[5].split(',') if business_row[3] else ['customer_name', 'campaign_name']
         print(f"Business details: campaignId={campaign_id}, name={campaign_name}, template={template_name}, prompt={prompt}, params={template_params}")
 
         if not template_name:
@@ -210,12 +129,10 @@ def send_template_to_all(campaign_id):
                 continue
 
             # Format the customer's phone number
-
             if customer_phone.startswith('0'):
                customer_phone = customer_phone[1:]
             customer_phone = f"+94{customer_phone}"
             print(f"Formatted customer phone: {customer_phone}")
-            
 
             # Prepare dynamic parameters based on template_parameters
             parameters = []
@@ -223,7 +140,7 @@ def send_template_to_all(campaign_id):
                 parameters.append({"type": "text", "text": customer_name})
             if 'business_name' in template_params:
                 parameters.append({"type": "text", "text": campaign_name})
-            if 'description' in template_params or 'product_name' in template_params:#In here description and all the parameter names should be the same with the database need to be changed with offer
+            if 'description' in template_params or 'product_name' in template_params:
                 cursor.execute("SELECT offer, campaignName FROM campaign WHERE campaignId = %s LIMIT 1", (campaign_id,))
                 product_row = cursor.fetchone()
                 if product_row and 'description' in template_params:
@@ -277,48 +194,51 @@ def webhook():
                     text = message.get("text", {}).get("body", "No text")
                     print(f"Received message from {sender}: {text}")
 
-                    # Fetch the dynamic prompt based on the sender's phone number
-                    connection, cursor = get_db_connection()
-                    prompt = "You are a friendly and concise WhatsApp bot. Respond in a helpful and conversational tone as a real sales agent, keeping replies under 100 words."
-                    campaign_name = None
-                    customer_name = None
+                    #format sender's phone number
+                    if sender.startswith('94') and len(sender) == 11:
+                           sender = '0' + sender[2:]
+                        
+                    print(f"Formatted sender: {sender}")
 
+                    # Fetch customerId and campaign details
+                    connection, cursor = get_db_connection()
+                    customer_id = None
+                    campaign_id = None
                     if connection and cursor:
                         try:
-                            # Look up customerId based on mobileNo
-                            cursor.execute("SELECT customerId, fName FROM customer WHERE mobileNo = %s", (sender,))
+                            cursor.execute("SELECT customerId FROM customer WHERE mobileNo = %s", (sender,))
                             customer_row = cursor.fetchone()
                             if customer_row:
-                                customer_id, customer_name = customer_row
-                                # Find associated campaignId and prompt
+                                customer_id = customer_row[0]
                                 cursor.execute("""
-                                    SELECT b.campaignId, b.name, b.prompt
+                                    SELECT b.campaignId
                                     FROM campaign b
                                     JOIN customer_campaign cb ON b.campaignId = cb.campaignId
                                     WHERE cb.customerId = %s LIMIT 1
                                 """, (customer_id,))
-                                business_row = cursor.fetchone()
-                                if business_row:
-                                    campaign_id, campaign_name, prompt = business_row
-                                    print(f"Found campaignId={campaign_id}, campaign_name={campaign_name} with prompt: {prompt}")
-                                    # Format the prompt with customer_name and campaign_name
-                                    prompt = prompt.format(customer_name=customer_name, campaign_name=campaign_name)
-                                else:
-                                    print("No campaign associated with customer, using default prompt")
-                            else:
-                                print("No customer found for sender, using default prompt")
+                                campaign_row = cursor.fetchone()
+                                if campaign_row:
+                                    campaign_id = campaign_row[0]
                         except Error as e:
-                            print(f"Database error fetching prompt: {e}")
+                            print(f"Database error fetching customer/campaign: {e}")
                         finally:
                             cursor.close()
                             connection.close()
-                    else:
-                        print("Database connection failed, using default prompt")
 
-                    # Generate AI reply with dynamic prompt
-                    ai_reply = call_llama(text, prompt)
+                    # Initialize LangChain conversation
+                    print(f"Initialized LangChain conversation for customerId={customer_id}, sender={sender}")
+                    runnable, customer_name, campaign_name = initialize_llm_chain(customer_id, sender)
+                    
+
+                    # Generate AI reply using LangChain
+                    ai_reply = call_llm_with_chain(runnable, text, customer_name, campaign_name, session_id=customer_id)
                     send_whatsapp_message(sender, ai_reply)
-                    addRow(sender, text, ai_reply, campaign_id)
+
+                    # Save conversation
+                    if customer_id and campaign_id:
+                        addRow(sender, campaign_id, ai_reply, text)
+                    else:
+                        print("Skipping saving conversation due to missing customer_id or campaign_id")
     except Exception as e:
         print(f"Webhook Error: {e}")
     return "OK", 200
@@ -327,7 +247,6 @@ def webhook():
 @app.route("/send-template", methods=["POST"])
 def send_template_route():
     """Send a template message to a specific phone number."""
-    # Endpoint to send a template message
     data = request.json
     phone = data.get("phone")
     template_name = data.get("template_name", "test_template")
@@ -337,9 +256,8 @@ def send_template_route():
 
 @app.route("/send-to-all", methods=["POST"])
 def send_to_all_route():
-    # Endpoint to send a template to all customers associated with a campaign
     data = request.json
-    campaign_id = data.get("campaign_id", 1)  # Default to 1 if not provided
+    campaign_id = data.get("campaign_id", 1)
     send_template_to_all(campaign_id)
     return "Templates sent to customers", 200
 
@@ -374,7 +292,7 @@ if __name__ == "__main__":
         parameters = [{"type": "text", "text": param} for param in params]
         send_template_cli(phone, template_name, parameters)
     elif args.send_to_all:
-        campaign_id = int(args.send_to_all[0])  # Convert to integer
+        campaign_id = int(args.send_to_all[0])
         send_template_to_all(campaign_id)
     else:
         print("Starting Flask app for inbound messaging on port 8080...")

@@ -2,7 +2,7 @@ import connect_db
 connection, cont = connect_db.get_db_connection()
 
 
-def addRow(sender, campaignId, ai_reply, text):
+def addRow(sender, campaign_id, ai_reply, text):
     '''function which can be used to add data into chatlog table
     within the database. Automatically identifies certain information'''
     # initialization of variables
@@ -13,7 +13,7 @@ def addRow(sender, campaignId, ai_reply, text):
     try:
         cont.execute(f"SELECT customerId FROM customer WHERE mobileNo = '{sender}'")
         customerId = cont.fetchall() # fetch customerId to corresponding sender
-        cont.execute(f"SELECT businessId FROM campaign WHERE campaignId = {campaignId}")
+        cont.execute(f"SELECT businessId FROM campaign WHERE campaignId = {campaign_id}")
         businessId = cont.fetchall() # fetch businessId to corresponding productId
     except Exception as error:
         raise Exception(f'Error location: chatlog_table.py | Unable to fetch corresponding values. | Detailed: {error}') # error identification
@@ -21,7 +21,7 @@ def addRow(sender, campaignId, ai_reply, text):
     # enters data to table
     try:
         cont.execute('INSERT INTO chatlog (customerId, businessId, campaignId, LLM_msg, customer_msg) VALUES (?, ?, ?, ?, ?)',
-                    (int(customerId[0][0]), int(businessId[0][0]), int(campaignId[0][0]), ai_reply, text)) # insert data as new row
+                    (int(customerId[0][0]), int(businessId[0][0]), int(campaign_id[0][0]), ai_reply, text)) # insert data as new row
     except Exception as error:
         raise Exception(f'Error location: chatlog_table.py | unable to insert data. | Detailed: {error}') # error identification
 
