@@ -53,7 +53,6 @@ def colHeaders():
                             "Mobile_Phone", "Mobile_Number_1", "Mobile_Number_User", "MobileNo",
                             "MobileNumber", "User_Mobile_Number", "Primary_Mobile", "Secondary_Mobile",
                             "mobile", "mobileNumber", "user_mobile", "contact_mobile", "mobile_number", 
-                            "user_phone_number", "primary_mobile_number", "secondary_mobile_number","digit","Digit","Mobile Number"],
-                                                    
+                            "user_phone_number", "primary_mobile_number", "secondary_mobile_number","digit","Digit","Mobile Number"],                                                   
     }
     return colHeadersDict
