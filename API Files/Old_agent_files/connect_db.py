@@ -1,5 +1,7 @@
 import mariadb as mdb
 import mysql.connector
+from mysql.connector import Error
+import os
 from dotenv import load_dotenv
 import os
 
@@ -12,17 +14,24 @@ DB_PASSWORD = os.getenv("DB_PASSWORD")
 DB_NAME = os.getenv("DB_NAME")
 
 # Function to establish connection with the database
-def connection():
+def get_db_connection():
     '''function which holds the database attributes
     to establish connection with database'''
-    connection = mysql.connector.connect(
+    try:
+        connection = mysql.connector.connect(
             host=DB_HOST,
             user=DB_USER,
             password=DB_PASSWORD,
             database=DB_NAME
         )
-    cont = connection.cursor() # controller to control the database 
-    return connection, cont
+        cursor = connection.cursor()
+        return connection, cursor
+    except Error as e:
+        print(f"Error connecting to mariadb: {e}")
+        return None
+    
+  
+
 
 
 

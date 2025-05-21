@@ -3,6 +3,8 @@ import os
 import requests
 import mysql.connector
 from mysql.connector import Error
+from chatlog_table import addRow
+from connect_db import get_db_connection
 import time
 import argparse
 import sys
@@ -26,7 +28,7 @@ print(f"Loaded PHONE_NUMBER_ID: {PHONE_NUMBER_ID}")
 # Initialize Flask
 app = Flask(__name__)
 
-# MariaDB Connection
+"""# MariaDB Connection
 def get_db_connection():
     try:
         connection = mysql.connector.connect(
@@ -38,10 +40,10 @@ def get_db_connection():
         return connection
     except Error as e:
         print(f"Error connecting to MariaDB: {e}")
-        return None
+        return None"""
 
-def save_conversation(phone, user_msg, ai_reply):
-    """Save the conversation to the database."""
+"""def save_conversation(phone, user_msg, ai_reply):
+    """"""
     connection = get_db_connection()
     #to get details of the customer
     cursor = connection.cursor()
@@ -52,10 +54,10 @@ def save_conversation(phone, user_msg, ai_reply):
         if not customer_id:
             print(f"No customer found with phone number {phone}")
             return
-        cursor.execute("SELECT businessId FROM customer_business WHERE customerId = %s", (customer_id,))
+        cursor.execute("SELECT campaignId FROM customer_business WHERE customerId = %s", (customer_id,))
         customer_row = cursor.fetchone()
         if not customer_row:
-            print(f"No business found with customer {customer_id}")
+            print(f"No campaign found with customer {customer_id}")
             return
         campaign_id = customer_row[0]
     except Error as e:
@@ -66,7 +68,7 @@ def save_conversation(phone, user_msg, ai_reply):
     cursor = connection.cursor()
     try:
         cursor.execute(
-            "INSERT INTO chatlog (customerId, businessId, LLM_msg, customer_msg) VALUES (%s, %s, %s)",
+            "INSERT INTO chatlog (customerId, campaignId, LLM_msg, customer_msg) VALUES (%s, %s, %s, %s)",
             (customer_id, campaign_id, ai_reply, user_msg)
         )
         connection.commit()
@@ -74,7 +76,7 @@ def save_conversation(phone, user_msg, ai_reply):
         print(f"Error saving conversation: {e}")
     finally:
         cursor.close()
-        connection.close()
+        connection.close()"""
 
 # WhatsApp - Send Free-form Message
 def send_whatsapp_message(phone, msg):
@@ -158,14 +160,14 @@ def call_llama(user_input, prompt):
         return "Sorry, I couldn't process your request right now. Please try again later."
 
 def send_template_to_all(campaign_id):
-    """This funtion is to send template massage to all the customers in a business"""
+    """This funtion is to send template massage to all the customers in a campaign"""
     connection = get_db_connection()
     if connection is None:
         return
 
     cursor = connection.cursor()
     try:
-        # Check if the business exists and fetch its details
+        # Check if the campaign exists and fetch its details
         cursor.execute("SELECT * FROM campaign WHERE campaignId = %s", (campaign_id,))
         business_row = cursor.fetchone()
         if not business_row:
@@ -176,13 +178,13 @@ def send_template_to_all(campaign_id):
         template_name = business_row[4]
         prompt = business_row[3]
         template_params = business_row[5].split(',') if business_row[3] else ['customer_name', 'campaign_name']#to get the template parameters
-        print(f"Business details: businessId={campaign_id}, name={campaign_name}, template={template_name}, prompt={prompt}, params={template_params}")
+        print(f"Business details: campaignId={campaign_id}, name={campaign_name}, template={template_name}, prompt={prompt}, params={template_params}")
 
         if not template_name:
-            print(f"No template specified for businessId = {campaign_id}, aborting...")
+            print(f"No template specified for campaignId = {campaign_id}, aborting...")
             return
 
-        # Fetch all customers associated with the business
+        # Fetch all customers associated with the campaign
         cursor.execute("""
             SELECT c.customerId, c.fName, c.mobileNo
             FROM customer c
@@ -190,10 +192,10 @@ def send_template_to_all(campaign_id):
             WHERE cb.campaignId = %s
         """, (campaign_id,))
         customers = cursor.fetchall()
-        print(f"Found {len(customers)} customers associated with businessId={campaign_id}")
+        print(f"Found {len(customers)} customers associated with campaignId={campaign_id}")
 
         if not customers:
-            print(f"No customers found for businessId = {campaign_id}, aborting...")
+            print(f"No customers found for campaignId = {campaign_id}, aborting...")
             return
 
         # For each customer, send the template message
@@ -276,34 +278,33 @@ def webhook():
                     print(f"Received message from {sender}: {text}")
 
                     # Fetch the dynamic prompt based on the sender's phone number
-                    connection = get_db_connection()
+                    connection, cursor = get_db_connection()
                     prompt = "You are a friendly and concise WhatsApp bot. Respond in a helpful and conversational tone as a real sales agent, keeping replies under 100 words."
                     campaign_name = None
                     customer_name = None
 
-                    if connection:
-                        cursor = connection.cursor()
+                    if connection and cursor:
                         try:
                             # Look up customerId based on mobileNo
                             cursor.execute("SELECT customerId, fName FROM customer WHERE mobileNo = %s", (sender,))
                             customer_row = cursor.fetchone()
                             if customer_row:
                                 customer_id, customer_name = customer_row
-                                # Find associated businessId and prompt
+                                # Find associated campaignId and prompt
                                 cursor.execute("""
-                                    SELECT b.businessId, b.name, b.prompt
-                                    FROM business b
-                                    JOIN customer_business cb ON b.businessId = cb.businessId
+                                    SELECT b.campaignId, b.name, b.prompt
+                                    FROM campaign b
+                                    JOIN customer_campaign cb ON b.campaignId = cb.campaignId
                                     WHERE cb.customerId = %s LIMIT 1
                                 """, (customer_id,))
                                 business_row = cursor.fetchone()
                                 if business_row:
                                     campaign_id, campaign_name, prompt = business_row
-                                    print(f"Found businessId={campaign_id}, campaign_name={campaign_name} with prompt: {prompt}")
+                                    print(f"Found campaignId={campaign_id}, campaign_name={campaign_name} with prompt: {prompt}")
                                     # Format the prompt with customer_name and campaign_name
                                     prompt = prompt.format(customer_name=customer_name, campaign_name=campaign_name)
                                 else:
-                                    print("No business associated with customer, using default prompt")
+                                    print("No campaign associated with customer, using default prompt")
                             else:
                                 print("No customer found for sender, using default prompt")
                         except Error as e:
@@ -317,7 +318,7 @@ def webhook():
                     # Generate AI reply with dynamic prompt
                     ai_reply = call_llama(text, prompt)
                     send_whatsapp_message(sender, ai_reply)
-                    save_conversation(sender, text, ai_reply)
+                    addRow(sender, text, ai_reply, campaign_id)
     except Exception as e:
         print(f"Webhook Error: {e}")
     return "OK", 200
@@ -336,7 +337,7 @@ def send_template_route():
 
 @app.route("/send-to-all", methods=["POST"])
 def send_to_all_route():
-    # Endpoint to send a template to all customers associated with a business
+    # Endpoint to send a template to all customers associated with a campaign
     data = request.json
     campaign_id = data.get("campaign_id", 1)  # Default to 1 if not provided
     send_template_to_all(campaign_id)
@@ -360,7 +361,7 @@ if __name__ == "__main__":
         "--send-to-all",
         nargs=1,
         metavar=("BUSINESS_ID"),
-        help="Send a template to all customers associated with a business (e.g., --send-to-all 1 or --send-to-all 2)"
+        help="Send a template to all customers associated with a campaign (e.g., --send-to-all 1 or --send-to-all 2)"
     )
     args = parser.parse_args()
 
