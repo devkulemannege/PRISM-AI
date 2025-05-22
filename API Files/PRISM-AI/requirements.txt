@@ -1,0 +1,11 @@
+# Core dependencies for the WhatsApp bot
+flask==3.0.3
+requests==2.32.3
+mysql-connector-python==8.4.0
+python-dotenv==1.0.1
+langchain==0.2.16
+langchain-groq==0.1.9
+
+# Optional dependencies for RAG system (uncomment to use)
+# sentence-transformers==3.0.1
+# faiss-cpu==1.8.0
