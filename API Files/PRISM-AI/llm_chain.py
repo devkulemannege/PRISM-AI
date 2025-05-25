@@ -1,5 +1,5 @@
 from langchain_groq import ChatGroq
-from langchain.memory import ChatMessageHistory
+from langchain_community.chat_message_histories import ChatMessageHistory
 from langchain.memory import ConversationBufferMemory
 from langchain.prompts import PromptTemplate
 from langchain_core.runnables.history import RunnableWithMessageHistory

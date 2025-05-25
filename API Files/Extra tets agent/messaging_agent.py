@@ -8,6 +8,7 @@ from connect_db import get_db_connection
 import time
 import argparse
 import sys
+import threading
 from flask import Flask, request
 from llm_chain import initialize_llm_chain, call_llm_with_chain
 
@@ -85,6 +86,7 @@ def send_template_to_all(campaign_id):
     """This function is to send template messages to all the customers in a campaign"""
     connection, cursor = get_db_connection()
     if connection is None:
+        print("Failed to connect to database")
         return
 
     try:
@@ -98,8 +100,8 @@ def send_template_to_all(campaign_id):
         campaign_name = business_row[2]
         template_name = business_row[4]
         prompt = business_row[3]
-        template_params = business_row[5].split(',') if business_row[3] else ['customer_name', 'campaign_name']
-        print(f"Business details: campaignId={campaign_id}, name={campaign_name}, template={template_name}, prompt={prompt}, params={template_params}")
+        template_params = business_row[5].split(',') if business_row[5] else ['customer_name', 'campaign_name']
+        print(f"Campaign details: campaignId={campaign_id}, name={campaign_name}, template={template_name}, prompt={prompt}, params={template_params}")
 
         if not template_name:
             print(f"No template specified for campaignId = {campaign_id}, aborting...")
@@ -132,7 +134,7 @@ def send_template_to_all(campaign_id):
 
             # Format the customer's phone number
             if customer_phone.startswith('0'):
-               customer_phone = customer_phone[1:]
+                customer_phone = customer_phone[1:]
             customer_phone = f"+94{customer_phone}"
             print(f"Formatted customer phone: {customer_phone}")
 
@@ -152,7 +154,9 @@ def send_template_to_all(campaign_id):
 
             print(f"Sending template {template_name} to {customer_phone} with parameters {parameters}")
             print(f"Template expects {len(parameters)} parameters: {parameters}")
-            send_template(customer_phone, template_name, parameters)
+            response = send_template(customer_phone, template_name, parameters)
+            if 'error' in response:
+                print(f"Failed to send template to {customer_phone}: {response['error']}")
             time.sleep(1)
     except Error as e:
         print(f"Error querying database: {e}")
@@ -249,6 +253,55 @@ def webhook():
         traceback.print_exc()  # Print full stack trace
     return "OK", 200
 
+def check_new_notifications():
+    print("Starting notification polling thread...")
+    while True:
+        try:
+            connection, cursor = get_db_connection()
+            cursor.execute("""
+                SELECT notificationId, campaignId
+                FROM campaign_notifications
+                WHERE processed = FALSE
+            """)
+            notifications = cursor.fetchall()
+            print(f"Found {len(notifications)} unprocessed notifications")
+
+            for notification in notifications:
+                notification_id, campaign_id = notification
+                print(f"Detected new notification for campaignId={campaign_id}")
+                response = requests.post(
+                    "http://127.0.0.1:8080/notify",
+                    json={"campaignId": campaign_id}
+                )
+                print(f"Notify endpoint response: {response.status_code}, {response.text}")
+                cursor.execute("""
+                    UPDATE campaign_notifications
+                    SET processed = TRUE
+                    WHERE notificationId = %s
+                """, (notification_id,))
+                connection.commit()
+
+            cursor.close()
+            connection.close()
+        except Exception as e:
+            print(f"Error in check_new_notifications: {e}")
+        time.sleep(5)  # Reduced for faster testing
+
+# Notification Endpoint
+@app.route('/notify', methods=['POST'])
+def notify():
+    try:
+        data = request.json
+        campaign_id = data.get('campaignId')
+        if not campaign_id:
+            return "Missing campaignId", 400
+        print(f"Received notification for campaignId={campaign_id}")
+        send_template_to_all(campaign_id)
+        return "Notification processed", 200
+    except Exception as e:
+        print(f"Error in notify endpoint: {e}")
+        return f"Error: {str(e)}", 500
+
 # API Endpoints
 @app.route("/send-template", methods=["POST"])
 def send_template_route():
@@ -266,6 +319,10 @@ def send_to_all_route():
     campaign_id = data.get("campaign_id", 1)
     send_template_to_all(campaign_id)
     return "Templates sent to customers", 200
+
+def run_flask():
+    print("Starting Flask app for inbound messaging on port 8080...")
+    app.run(host="0.0.0.0", port=8080, debug=True, use_reloader=False)
 
 # Main
 if __name__ == "__main__":
@@ -301,5 +358,19 @@ if __name__ == "__main__":
         campaign_id = int(args.send_to_all[0])
         send_template_to_all(campaign_id)
     else:
-        print("Starting Flask app for inbound messaging on port 8080...")
-        app.run(host="0.0.0.0", port=8080, debug=True)
+        # Start Flask server in a separate thread
+        flask_thread = threading.Thread(target=run_flask)
+        flask_thread.daemon = True
+        flask_thread.start()
+
+        # Start polling thread to check for new notifications
+        polling_thread = threading.Thread(target=check_new_notifications)
+        polling_thread.daemon = True
+        polling_thread.start()
+
+        # Keep the main thread alive
+        try:
+            while True:
+                time.sleep(1)
+        except KeyboardInterrupt:
+            print("Shutting down...")
