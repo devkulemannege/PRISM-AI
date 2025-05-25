@@ -1,8 +1,9 @@
 import pandas 
 import customer_table
 import store_headers
+import pathlib
 
-def identifyCSV(file):
+def readData(file):
     '''Reads the entirety of the imported CSV file.
     sends data to the database as well'''
     # initialize data holder dictionary / variables
@@ -13,8 +14,11 @@ def identifyCSV(file):
         'email' : '',
     }
     colHeaderDict = store_headers.colHeaders() # retrive header dictionary from module
-    data = pandas.read_csv(file) # access CSV file
     cell = ''
+
+    extention = pathlib.Path(file) # identify the file extention
+    if extention.suffix == '.csv': data = pandas.read_csv(file)
+    else: data = pandas.read_excel(file)
 
     for row in range(len(data)):
         for col in range(len(data.columns)):
@@ -53,9 +57,10 @@ def identifyCSV(file):
 
             elif data.columns[col] in colHeaderDict['mobileNumHeaders']: oneInstance['mobileNo'] = cell # if cell contains mobile number data         
 
-            else: print(f'Column header not identified for cell address {row+1, col+1}')
+            else: print(f'Column header not identified for cell address {row, col}')
 
+        print(oneInstance)
         customer_table.addRow(oneInstance['mobileNo'], oneInstance['fName'], oneInstance['lName'], oneInstance['email']) # send data to database table
 
 # debug
-identifyCSV('CSV Reader\\TestFile..csv') # send csv file to function
+readData('')
