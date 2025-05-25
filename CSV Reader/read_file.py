@@ -61,5 +61,3 @@ def readData(file):
 
         customer_table.addRow(oneInstance['mobileNo'], oneInstance['fName'], oneInstance['lName'], oneInstance['email']) # send data to database table
 
-# debug
-readData('')
