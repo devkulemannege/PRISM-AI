@@ -4,6 +4,7 @@ import sys
 import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'Database')))
 from connect_db import connection
+from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'
@@ -11,7 +12,7 @@ app.secret_key = 'your_secret_key'
 # Database connection
 def get_db_connection():
     conn, cur = connection()
-    return conn
+    return conn, cur
 
 # Home redirects to login
 @app.route('/')
@@ -27,8 +28,7 @@ def register():
         business_type = request.form['type']
         password = request.form['password']
 
-        conn = get_db_connection()
-        cur = conn.cursor()
+        conn, cur = get_db_connection()
 
         business_id = random.randint(1000000, 9999999)
         cur.execute("SELECT businessId FROM business")
@@ -56,8 +56,7 @@ def login():
         name = request.form['name']
         password = request.form['password']
 
-        conn = get_db_connection()
-        cur = conn.cursor()
+        conn, cur = get_db_connection()
         cur.execute("SELECT * FROM business WHERE name=? AND password=?", (name, password))
         user = cur.fetchone()
         conn.close()
@@ -80,7 +79,20 @@ def logout():
 @app.route('/dashboard')
 def dashboard():
     if 'name' in session:
-        return render_template('dashboard.html', name=session['name'])
+        conn, cur = get_db_connection()
+        # Get businessId for the logged-in user
+        cur.execute("SELECT businessId FROM business WHERE name=?", (session['name'],))
+        business_id_row = cur.fetchone()
+        campaigns = []
+        if business_id_row:
+            business_id = business_id_row[0]
+            # Fetch all campaigns for this business
+            cur.execute("SELECT * FROM campaign WHERE businessId=? ORDER BY campaignId DESC", (business_id,))
+            columns = [desc[0] for desc in cur.description]
+            for row in cur.fetchall():
+                campaigns.append(dict(zip(columns, row)))
+        conn.close()
+        return render_template('dashboard.html', name=session['name'], campaigns=campaigns)
     else:
         return redirect(url_for('login'))
 
@@ -125,8 +137,7 @@ def generate_prompt():
         prompt = one_time_prompt
 
     # Save campaign to database (add ProductType column)
-    conn = get_db_connection()
-    cur = conn.cursor()
+    conn, cur = get_db_connection()
     cur.execute("SELECT businessId FROM business WHERE name=?", (session['name'],))
     business_id_row = cur.fetchone()
     if business_id_row:
@@ -154,7 +165,42 @@ def generate_prompt():
         conn.commit()
     conn.close()
 
-    return render_template('result.html', prompt=prompt)
+    # Redirect to customer upload page after product submission
+    return redirect(url_for('customer_upload'))
+
+# === CUSTOMER UPLOAD FUNCTIONALITY ===
+
+UPLOAD_FOLDER = os.path.join(os.path.dirname(__file__), 'CustomerUpload')
+if not os.path.exists(UPLOAD_FOLDER):
+    os.makedirs(UPLOAD_FOLDER)
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+# Customer CSV upload
+@app.route('/customer-upload', methods=['GET', 'POST'])
+def customer_upload():
+    if 'name' not in session:
+        return redirect(url_for('login'))
+    if request.method == 'POST':
+        file = request.files.get('csv_file')
+        if file and file.filename.endswith('.csv'):
+            # Get business name and latest campaignId
+            conn, cur = get_db_connection()
+            cur.execute("SELECT businessId FROM business WHERE name=?", (session['name'],))
+            business_id_row = cur.fetchone()
+            business_id = business_id_row[0] if business_id_row else 'unknown'
+            cur.execute("SELECT campaignId FROM campaign WHERE businessId=? ORDER BY campaignId DESC LIMIT 1", (business_id,))
+            campaign_id_row = cur.fetchone()
+            campaign_id = campaign_id_row[0] if campaign_id_row else 'unknown'
+            # Create filename: businessname_campaignid.csv
+            safe_business = secure_filename(session['name'])
+            filename = f"{safe_business}_{campaign_id}.csv"
+            save_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            file.save(save_path)
+            conn.close()
+            return render_template('success.html')
+        else:
+            return "Invalid file type. Please upload a CSV file."
+    return render_template('CustomerUpload.html')
 
 # Start the Flask app
 if __name__ == '__main__':

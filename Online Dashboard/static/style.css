@@ -141,7 +141,59 @@ a:hover {
     color: #176c3a;
 }
 
+/* Table Styles */
+.campaign-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    background: #fff;
+    box-shadow: 0 4px 24px rgba(34, 139, 34, 0.08);
+    border-radius: 12px;
+    overflow: hidden;
+    margin: 32px 0 0 0;
+    font-size: 0.98rem;
+}
+.campaign-table th, .campaign-table td {
+    padding: 14px 12px;
+    text-align: left;
+    border-bottom: 1px solid #e6f4ea;
+}
+.campaign-table th {
+    background: linear-gradient(90deg, #e8f5e9 0%, #c8e6c9 100%);
+    color: #219150;
+    font-weight: 700;
+    font-size: 1.05rem;
+    border-bottom: 2px solid #b2dfdb;
+}
+.campaign-table tr:last-child td {
+    border-bottom: none;
+}
+.campaign-table tbody tr:hover {
+    background: #f4fff7;
+    transition: background 0.2s;
+}
+.campaign-table td {
+    color: #1b3c1b;
+    vertical-align: top;
+    max-width: 260px;
+    word-break: break-word;
+}
+.campaign-table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+}
+
 /* Responsive Design */
+@media (max-width: 900px) {
+    .campaign-table th, .campaign-table td {
+        font-size: 0.92rem;
+        padding: 10px 6px;
+    }
+    .campaign-table td {
+        max-width: 120px;
+    }
+}
 @media (max-width: 600px) {
     .container {
         max-width: 98vw;
@@ -153,6 +205,12 @@ a:hover {
     }
     h1, h2 {
         font-size: 1.2rem;
+    }
+    .campaign-table {
+        font-size: 0.85rem;
+    }
+    .campaign-table th, .campaign-table td {
+        padding: 7px 2px;
     }
 }
 
