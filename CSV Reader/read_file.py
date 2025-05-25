@@ -59,7 +59,6 @@ def readData(file):
 
             else: print(f'Column header not identified for cell address {row, col}')
 
-        print(oneInstance)
         customer_table.addRow(oneInstance['mobileNo'], oneInstance['fName'], oneInstance['lName'], oneInstance['email']) # send data to database table
 
 # debug
