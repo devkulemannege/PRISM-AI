@@ -57,8 +57,6 @@ def readData(file):
 
             elif data.columns[col].strip() in colHeaderDict['mobileNumHeaders']: oneInstance['mobileNo'] = cell # if cell contains mobile number data         
 
-            else: print(f'Column header not identified for cell address {row, col}')
-        print(oneInstance)
-        #customer_table.addRow(oneInstance['mobileNo'], oneInstance['fName'], oneInstance['lName'], oneInstance['email']) # send data to database table
+        customer_table.addRow(oneInstance['mobileNo'], oneInstance['fName'], oneInstance['lName'], oneInstance['email']) # send data to database table
 
-readData('PRISM-AI\Online Dashboard\CustomerUpload\Pamula_7.csv')
+readData('PRISM-AI\Online Dashboard\CustomerUpload\Pamula_8.csv')
