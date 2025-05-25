@@ -24,7 +24,7 @@ def readData(file):
         for col in range(len(data.columns)):
             cell = str(data.iloc[row, col]).strip() # read every cell in CSV
 
-            if data.columns[col] in colHeaderDict['nameHeaders']: # if full name is under one column 
+            if data.columns[col].strip() in colHeaderDict['nameHeaders']: # if full name is under one column 
                 # initialize variables for particular scenario
                 tempFirstNameHolder = []
                 spaceCount = 0
@@ -49,15 +49,14 @@ def readData(file):
                         if secondarySpaceCount == spaceCount: break
                     oneInstance['fName'] = oneInstance['lName'] =  cell[count:] # assing last name to first name & last name
 
-            elif data.columns[col] in colHeaderDict['firstNameHeaders']: oneInstance['fName'] = cell # if cell contains first name dataoneInstance['fName'] = cell
+            elif data.columns[col].strip() in colHeaderDict['firstNameHeaders']: oneInstance['fName'] = cell # if cell contains first name dataoneInstance['fName'] = cell
             
-            elif data.columns[col] in colHeaderDict['lastNameHeaders']: oneInstance['lName'] = cell # if cell contains last name data
+            elif data.columns[col].strip() in colHeaderDict['lastNameHeaders']: oneInstance['lName'] = cell # if cell contains last name data
             
-            elif data.columns[col] in colHeaderDict['emailHeaders']: oneInstance['email'] = cell # if cell contains email data               
+            elif data.columns[col].strip() in colHeaderDict['emailHeaders']: oneInstance['email'] = cell # if cell contains email data               
 
-            elif data.columns[col] in colHeaderDict['mobileNumHeaders']: oneInstance['mobileNo'] = cell # if cell contains mobile number data         
+            elif data.columns[col].strip() in colHeaderDict['mobileNumHeaders']: oneInstance['mobileNo'] = cell # if cell contains mobile number data         
 
             else: print(f'Column header not identified for cell address {row, col}')
 
         customer_table.addRow(oneInstance['mobileNo'], oneInstance['fName'], oneInstance['lName'], oneInstance['email']) # send data to database table
-
