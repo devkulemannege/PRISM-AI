@@ -8,46 +8,22 @@
 <body>
     <h1>Enter Product Details</h1>
     <form action="/generate" method="POST">
-
-        <label for="product_name">Product Name:</label><br>
-        <input type="text" id="product_name" name="product_name" required><br><br>
-
-        <label for="target_problem">Target Problem:</label><br>
-        <input type="text" id="target_problem" name="target_problem" required><br><br>
-
-        <label for="target_audience">Target Audience:</label><br>
-        <input type="text" id="target_audience" name="target_audience" required><br><br>
-
-        <label for="unique_solution">Unique Solution:</label><br>
-        <input type="text" id="unique_solution" name="unique_solution" required><br><br>
-
-        <label for="reason_why_needed">Reason Why It’s Needed Now:</label><br>
-        <input type="text" id="reason_why_needed" name="reason_why_needed" required><br><br>
-
-        <label for="main_benefits">Main Benefits:</label><br>
-        <input type="text" id="main_benefits" name="main_benefits" required><br><br>
-
-        <label for="social_proof">Social Proof (e.g., review):</label><br>
-        <input type="text" id="social_proof" name="social_proof" required><br><br>
-
-        <label for="price">Normal Price:</label><br>
-        <input type="text" id="price" name="price" required><br><br>
-
-        <label for="offer">Special Offer:</label><br>
-        <input type="text" id="offer" name="offer" required><br><br>
-
-        <label for="urgency">Urgency Message:</label><br>
-        <input type="text" id="urgency" name="urgency" required><br><br>
-
-        <label for="cta">Call to Action (CTA):</label><br>
-        <input type="text" id="cta" name="cta" required><br><br>
-
-        <label for="product_type">Product Type:</label><br>
+        <input type="text" id="product_name" name="product_name" placeholder="Product Name" required><br><br>
+        <input type="text" id="target_problem" name="target_problem" placeholder="Target Problem" required><br><br>
+        <input type="text" id="target_audience" name="target_audience" placeholder="Target Audience" required><br><br>
+        <input type="text" id="unique_solution" name="unique_solution" placeholder="Unique Solution" required><br><br>
+        <input type="text" id="reason_why_needed" name="reason_why_needed" placeholder="Reason Why It’s Needed Now" required><br><br>
+        <input type="text" id="main_benefits" name="main_benefits" placeholder="Main Benefits" required><br><br>
+        <input type="text" id="social_proof" name="social_proof" placeholder="Social Proof (e.g., review)" required><br><br>
+        <input type="text" id="price" name="price" placeholder="Normal Price" required><br><br>
+        <input type="text" id="offer" name="offer" placeholder="Special Offer" required><br><br>
+        <input type="text" id="urgency" name="urgency" placeholder="Urgency Message" required><br><br>
+        <input type="text" id="cta" name="cta" placeholder="Call to Action (CTA)" required><br><br>
         <select id="product_type" name="product_type" required>
+            <option value="" disabled selected>Select Product Type</option>
             <option value="Recurrent Selling Product">Recurrent Selling Product</option>
             <option value="One time Only Selling Product">One time Only Selling Product</option>
         </select><br><br>
-
         <button type="submit">Generate Prompt</button>
     </form>
 </body>
