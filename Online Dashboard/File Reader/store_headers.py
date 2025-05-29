@@ -20,7 +20,7 @@ def colHeaders():
                             "firstName", "fName", "user_first_name", "customer_first_name",
                             "employee_first_name", "contact_first_name", "f_name", "fName",
                             "firstN", "given_name", "forename", "First Name", "First_Name", "Firstname", "Given Name", "FName",
-                            "First", "First Name (User)", "Employee First Name", "Customer First Name","first_name", "firstName", "fname", "user_first_name", "customer_first_name",
+                             "First Name (User)", "Employee First Name", "Customer First Name","first_name", "firstName", "fname", "user_first_name", "customer_first_name",
                             "contact_first_name", "given_name", "primary_name", "initial_name","first_name", "firstname", "f_name", "FNAME", "FIRSTNAME", "F_NM",
                             "person_first_name", "user_first_name", "customer_first_name", "given_name", "primary_name", "first name"],
 
