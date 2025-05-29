@@ -17,7 +17,6 @@ for key in colHeaderDict.keys():
 def identify(keyword):
     '''ML based column type identification 
     for a wider range of inupts'''
-    print(keyword)
     xTrain, xTest, yTrain, yTest = train_test_split(xDataSet, yDataset, test_size=0.1, random_state=1) # split data for training 
 
     dataEncode = LabelEncoder() # prepare training for keys (Encoded)
