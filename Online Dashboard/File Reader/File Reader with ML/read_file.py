@@ -67,9 +67,11 @@ def readData(file):
             
             elif str(identify(passValue)) == "['emailHeaders']": oneInstance['email'] = cell # if cell contains email data               
 
-            elif str(identify(passValue)) == "['mobileNumHeaders']": oneInstance['mobileNo'] = cell # if cell contains mobile number data         
+            elif str(identify(passValue)) == "['mobileNumHeaders']": oneInstance['mobileNo'] = cell # if cell contains mobile number data    
+
+            else: print('No Column Catagory Found.')     
 
         customer_table.addRow(oneInstance['mobileNo'], oneInstance['fName'], oneInstance['lName'], oneInstance['email']) # send data to database table
 
 # debug
-#readData('Online Dashboard\\File Reader\\File Reader with ML\\readExcel.xlsx')
+#readData('Online Dashboard\\File Reader\\File Reader with ML\\Pamula_5.csv')

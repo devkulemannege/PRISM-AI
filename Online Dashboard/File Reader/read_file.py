@@ -73,4 +73,4 @@ def readData(file):
 
         customer_table.addRow(oneInstance['mobileNo'], oneInstance['fName'], oneInstance['lName'], oneInstance['email']) # send data to database table
 
-#readData('Online Dashboard\\File Reader\\File Reader with ML\\Pamula_8.csv')
+#readData('Online Dashboard\\File Reader\\File Reader with ML\\Pamula_5.csv')

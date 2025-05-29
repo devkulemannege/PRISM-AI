@@ -32,13 +32,11 @@ def identify(keyword):
     confidency = model.predict_proba(inputDataVec)
         
     if max(confidency[0]) < 0.4: return 'None'
-    else: 
-        print(max(confidency[0]))
-        return dataEncode.inverse_transform(predict)
+    else: return dataEncode.inverse_transform(predict)
 
 # debug
-#if str(identify('name')) == "['nameHeaders']": print('YES')
-print(identify(input('Enter Keyword: ')))
+#if str(identify('name')) == "['nameHeaders']"": print('YES')
+#print(identify(input('Enter Keyword: ')))
 
 
 

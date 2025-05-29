@@ -14,7 +14,7 @@ def colHeaders():
                         "full_name_text", "full_name_string", "full_name_str", "full_name_val",
                         "primary_name", "initial_name", "display_name", "profile_name",
                         "registered_name", "contact_full_name", "user_full_name",
-                        "user_profile_name", "customer_profile_name", "client_full_name"],
+                        "user_profile_name", "customer_profile_name", "client_full_name", "customer"],
 
         'firstNameHeaders' : ["first_name", "firstname", "fname", "f_name", "name_first",
                             "firstName", "fName", "user_first_name", "customer_first_name",
