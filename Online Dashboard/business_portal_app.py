@@ -225,12 +225,37 @@ def process_customer_upload():
     return "Missing file path or campaign ID."
 
 # Profile page
-@app.route('/profile')
+@app.route('/profile', methods=['GET', 'POST'])
 def profile():
     if 'name' not in session:
         return redirect(url_for('login'))
-    # Optionally, fetch more user info from DB here
-    return render_template('profile.html')
+    conn, cur = get_db_connection()
+    # Fetch businessId for the logged-in user
+    cur.execute("SELECT businessId FROM business WHERE name=?", (session['name'],))
+    business_id_row = cur.fetchone()
+    business_id = business_id_row[0] if business_id_row else None
+    # Fetch customer row for this business (assuming 1:1 business-customer for profile)
+    cur.execute("SELECT * FROM customer WHERE campaignId IN (SELECT campaignId FROM campaign WHERE businessId=?) ORDER BY customerId DESC LIMIT 1", (business_id,))
+    customer = cur.fetchone()
+    columns = [desc[0] for desc in cur.description]
+    customer_dict = dict(zip(columns, customer)) if customer else None
+    profile_pic_url = url_for('static', filename='profile.png')
+    if customer_dict and customer_dict.get('profile_pic'):
+        profile_pic_url = url_for('static', filename='profile_pics/' + customer_dict['profile_pic'])
+    if request.method == 'POST':
+        file = request.files.get('profile_pic')
+        if file and file.filename:
+            filename = secure_filename(file.filename)
+            pic_folder = os.path.join(app.static_folder, 'profile_pics')
+            if not os.path.exists(pic_folder):
+                os.makedirs(pic_folder)
+            file.save(os.path.join(pic_folder, filename))
+            # Save filename in DB
+            cur.execute("UPDATE customer SET profile_pic=? WHERE customerId=?", (filename, customer_dict['customerId']))
+            conn.commit()
+            profile_pic_url = url_for('static', filename='profile_pics/' + filename)
+    conn.close()
+    return render_template('profile.html', profile_pic_url=profile_pic_url, customer=customer_dict)
 
 @app.route('/campaign')
 def campaign():
