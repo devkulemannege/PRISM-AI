@@ -308,6 +308,9 @@ a:hover {
 .header-right {
     display: flex;
     align-items: center;
+    min-width: 48px;
+    min-height: 48px;
+    justify-content: flex-end;
 }
 .profile-link {
     display: flex;
@@ -321,6 +324,11 @@ a:hover {
     border: 2px solid #fff;
     box-shadow: 0 2px 8px rgba(34,139,34,0.10);
     transition: box-shadow 0.2s;
+    display: inline-block;
+    background: #fff url('/static/profile.png') center center/cover no-repeat;
+}
+.profile-pic[src=""], .profile-pic:not([src]) {
+    background: #fff url('/static/profile.png') center center/cover no-repeat;
 }
 .profile-pic:hover {
     box-shadow: 0 4px 16px rgba(34,139,34,0.18);
