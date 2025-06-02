@@ -12,12 +12,6 @@ def addRow(db_sender, campaign_id, ai_reply, text):
       try:
           cont.execute("SELECT customerId FROM customer WHERE mobileNo = %s", (db_sender,))
           customerId = cont.fetchone()  # fetch customerId to corresponding sender
-          if customerId:
-              customerId = customerId[0]
-          cont.execute("SELECT businessId FROM campaign WHERE campaignId = %s", (campaign_id,))
-          businessId = cont.fetchone()  # fetch businessId to corresponding productId
-          if businessId:
-              businessId = businessId[0]
       except Exception as error:
           raise Exception(f'Error location: chatlog_table.py | Unable to fetch corresponding values. | Detailed: {error}')  # error identification
       finally:
@@ -26,11 +20,11 @@ def addRow(db_sender, campaign_id, ai_reply, text):
               connection.close()
 
       # enters data to table
-      if customerId is not None and businessId is not None:
+      if customerId is not None and campaign_id is not None:
           connection, cont = connect_db.get_db_connection()
           try:
-              cont.execute('INSERT INTO chatlog (customerId, businessId, LLM_msg, customer_msg) VALUES (%s, %s, %s, %s)',
-                          (int(customerId), int(businessId), ai_reply, text))  # insert data as new row
+              cont.execute('INSERT INTO chatlog (customerId, LLM_msg, customer_msg, campaignId) VALUES (%s, %s, %s, %s)',
+                          (int(customerId), ai_reply, text, campaign_id))  # insert data as new row
               cont.execute('UPDATE customer SET pastConversation = 1 WHERE customerId = %s', (int(customerId),))  # updates pastConversation in customer table
               connection.commit()
           except Exception as error:

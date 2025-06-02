@@ -14,15 +14,15 @@ def colHeaders():
                         "full_name_text", "full_name_string", "full_name_str", "full_name_val",
                         "primary_name", "initial_name", "display_name", "profile_name",
                         "registered_name", "contact_full_name", "user_full_name",
-                        "user_profile_name", "customer_profile_name", "client_full_name"],
+                        "user_profile_name", "customer_profile_name", "client_full_name", "customer"],
 
         'firstNameHeaders' : ["first_name", "firstname", "fname", "f_name", "name_first",
                             "firstName", "fName", "user_first_name", "customer_first_name",
                             "employee_first_name", "contact_first_name", "f_name", "fName",
                             "firstN", "given_name", "forename", "First Name", "First_Name", "Firstname", "Given Name", "FName",
-                             "First Name (User)", "Employee First Name", "Customer First Name","first_name", "firstName", "fname", "user_first_name", "customer_first_name",
+                            "First", "First Name (User)", "Employee First Name", "Customer First Name","first_name", "firstName", "fname", "user_first_name", "customer_first_name",
                             "contact_first_name", "given_name", "primary_name", "initial_name","first_name", "firstname", "f_name", "FNAME", "FIRSTNAME", "F_NM",
-                            "person_first_name", "user_first_name", "customer_first_name", "given_name", "primary_name", "first name"],
+                            "person_first_name", "user_first_name", "customer_first_name", "given_name", "primary_name", "first name", "Starting"],
 
         'lastNameHeaders' : ["last_name", "lastname", "lname", "l_name", "name_last",
                             "lastName", "lName", "user_last_name", "customer_last_name",
@@ -33,7 +33,7 @@ def colHeaders():
                             "last_name", "lastName", "lname", "user_last_name", "customer_last_name",
                             "contact_last_name", "surname", "family_name", "initial_last_name",
                             "last_name", "lastname", "l_name", "LNAME", "LASTNAME", "L_NM",
-                            "person_last_name", "user_last_name", "customer_last_name", "surname", "family_name"],
+                            "person_last_name", "user_last_name", "customer_last_name", "surname", "family_name", "Ending"],
 
         'emailHeaders' : ["email", "email_address", "email_id", "user_email", "customer_email",
                         "contact_email", "email_address_1", "email_address_user", "emailAddr",
@@ -53,6 +53,6 @@ def colHeaders():
                             "Mobile_Phone", "Mobile_Number_1", "Mobile_Number_User", "MobileNo",
                             "MobileNumber", "User_Mobile_Number", "Primary_Mobile", "Secondary_Mobile",
                             "mobile", "mobileNumber", "user_mobile", "contact_mobile", "mobile_number", 
-                            "user_phone_number", "primary_mobile_number", "secondary_mobile_number","digit","Digit","Mobile Number"],                                                   
+                            "user_phone_number", "primary_mobile_number", "secondary_mobile_number","digit","Digit","Mobile Number", "num", "mobile no"],                                                   
     }
     return colHeadersDict

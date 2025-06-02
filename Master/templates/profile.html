@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="profile-container">
+    <div class="profile-card">
+        <img src="{{ url_for('static', filename='profile.png') }}" alt="Profile Picture" class="profile-pic-large">
+        <h2>{{ session.get('name', 'User') }}</h2>
+        <p class="profile-role">Business User</p>
+        <div class="profile-details">
+            <p><strong>Email:</strong> <!-- Add email if available --></p>
+            <p><strong>Contact:</strong> <!-- Add contact if available --></p>
+        </div>
+        <a href="{{ url_for('logout') }}" class="button-link" style="margin-top:24px;">Logout</a>
+    </div>
+</div>
+{% endblock %}

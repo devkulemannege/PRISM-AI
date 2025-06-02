@@ -2,12 +2,10 @@
 <html>
 <head>
     <title>Business Registration</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
+<link rel="stylesheet" href="/style.css">
 
 <body>
-    {% extends "base.html" %}
-    {% block content %}
     <h2>Register Your Business</h2>
     <form method="POST">
         <input type="text" name="name" placeholder="Business Name" required><br>
@@ -16,7 +14,6 @@
         <input type="password" name="password" placeholder="Password" required><br>
         <button type="submit">Register</button>
     </form>
-    <p style="text-align:center;">Already have an account? <a href="{{ url_for('login') }}">Login here</a></p>
-    {% endblock %}
+    <p>Already have an account? <a href="{{ url_for('login') }}">Login here</a></p>
 </body>
 </html>

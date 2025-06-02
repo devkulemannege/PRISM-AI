@@ -1,7 +1,7 @@
 import pandas 
 import customer_table
-import store_headers
 import pathlib
+from machine_model import identify
 
 def readData(file):
     '''Reads the entirety of the imported CSV file.
@@ -13,7 +13,6 @@ def readData(file):
         'lName' : '',
         'email' : '',
     }
-    colHeaderDict = store_headers.colHeaders() # retrive header dictionary from module
     cell = ''
     count = 0 
 
@@ -22,13 +21,11 @@ def readData(file):
     else: data = pandas.read_excel(file)
 
     while count == 0: # check whether the top row holds column headers required 
-        for rowCheck in range(len(data)): 
-            for colCheck in  range(len(data.columns)):
-                if data.columns[colCheck] in (colHeaderDict['nameHeaders'] # checks if the column row is in fact, a column row
-                    + colHeaderDict['firstNameHeaders']
-                    + colHeaderDict['lastNameHeaders']
-                    + colHeaderDict['emailHeaders']
-                    + colHeaderDict['mobileNumHeaders']): count += 1
+        for rowCheck in range(len(data)): # variable unused
+            for colCheck in  range(len(data.columns)): 
+                passValue = str(data.columns[colCheck])
+                if str(identify(passValue)) in ["['nameHeaders']", "['firstNameHeaders']", "['lastNameHeaders']", "['emailHeaders']", "['mobileNumHeaders']"]:
+                    count += 1 # checks if the column row is in fact, a column row 
             if count == 0:
                 data.columns = data.iloc[0] # replace col headers with first row
                 data = data[1:]
@@ -37,8 +34,9 @@ def readData(file):
     for row in range(len(data)):
         for col in range(len(data.columns)):
             cell = str(data.iloc[row, col]).strip() # read every cell in CSV
+            passValue = str(data.columns[col].strip())
 
-            if data.columns[col].strip() in colHeaderDict['nameHeaders']: # if full name is under one column 
+            if str(identify(passValue)) == "['nameHeaders']": # if full name is under one column 
                 # initialize variables for particular scenario
                 tempFirstNameHolder = []
                 spaceCount = 0
@@ -63,14 +61,18 @@ def readData(file):
                         if secondarySpaceCount == spaceCount: break
                     oneInstance['fName'] = oneInstance['lName'] =  cell[count_main:] # assing last name to first name & last name
 
-            elif data.columns[col].strip() in colHeaderDict['firstNameHeaders']: oneInstance['fName'] = cell # if cell contains first name dataoneInstance['fName'] = cell
+            elif str(identify(passValue)) == "['firstNameHeaders']":oneInstance['fName'] = cell # if cell contains first name dataoneInstance['fName'] = cell
             
-            elif data.columns[col].strip() in colHeaderDict['lastNameHeaders']: oneInstance['lName'] = cell # if cell contains last name data
+            elif str(identify(passValue)) == "['lastNameHeaders']": oneInstance['lName'] = cell # if cell contains last name data
             
-            elif data.columns[col].strip() in colHeaderDict['emailHeaders']: oneInstance['email'] = cell # if cell contains email data               
+            elif str(identify(passValue)) == "['emailHeaders']": oneInstance['email'] = cell # if cell contains email data               
 
-            elif data.columns[col].strip() in colHeaderDict['mobileNumHeaders']: oneInstance['mobileNo'] = cell # if cell contains mobile number data         
+            elif str(identify(passValue)) == "['mobileNumHeaders']": oneInstance['mobileNo'] = cell # if cell contains mobile number data    
 
-        customer_table.addRow(oneInstance['mobileNo'], oneInstance['fName'], oneInstance['lName'], oneInstance['email']) # send data to database table
+            else: print('No Column Catagory Found.')     
 
-#readData('Online Dashboard\\File Reader\\File Reader with ML\\Pamula_5.csv')
+        # Get campaignId if available in context (e.g., pass as argument or set globally)
+        campaignId = None
+        if hasattr(readData, 'campaignId'):
+            campaignId = readData.campaignId
+        customer_table.addRow(oneInstance['mobileNo'], oneInstance['fName'], oneInstance['lName'], oneInstance['email'], campaignId)
