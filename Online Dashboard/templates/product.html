@@ -1,30 +1,24 @@
 <!-- templates/product.html -->
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Product Prompt Generator</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-</head>
-<body>
-    <h1>Enter Product Details</h1>
-    <form action="/generate" method="POST">
-        <input type="text" id="product_name" name="product_name" placeholder="Product Name" required><br><br>
-        <input type="text" id="target_problem" name="target_problem" placeholder="Target Problem" required><br><br>
-        <input type="text" id="target_audience" name="target_audience" placeholder="Target Audience" required><br><br>
-        <input type="text" id="unique_solution" name="unique_solution" placeholder="Unique Solution" required><br><br>
-        <input type="text" id="reason_why_needed" name="reason_why_needed" placeholder="Reason Why It’s Needed Now" required><br><br>
-        <input type="text" id="main_benefits" name="main_benefits" placeholder="Main Benefits" required><br><br>
-        <input type="text" id="social_proof" name="social_proof" placeholder="Social Proof (e.g., review)" required><br><br>
-        <input type="text" id="price" name="price" placeholder="Normal Price" required><br><br>
-        <input type="text" id="offer" name="offer" placeholder="Special Offer" required><br><br>
-        <input type="text" id="urgency" name="urgency" placeholder="Urgency Message" required><br><br>
-        <input type="text" id="cta" name="cta" placeholder="Call to Action (CTA)" required><br><br>
-        <select id="product_type" name="product_type" required>
-            <option value="" disabled selected>Select Product Type</option>
-            <option value="Recurrent Selling Product">Recurrent Selling Product</option>
-            <option value="One time Only Selling Product">One time Only Selling Product</option>
-        </select><br><br>
-        <button type="submit">Generate Prompt</button>
-    </form>
-</body>
-</html>
+{% extends "base.html" %}
+{% block content %}
+<h2>Sell a New Product</h2>
+<form action="/generate" method="POST">
+    <input type="text" id="product_name" name="product_name" placeholder="Product Name" required><br><br>
+    <input type="text" id="target_problem" name="target_problem" placeholder="Target Problem" required><br><br>
+    <input type="text" id="target_audience" name="target_audience" placeholder="Target Audience" required><br><br>
+    <input type="text" id="unique_solution" name="unique_solution" placeholder="Unique Solution" required><br><br>
+    <input type="text" id="reason_why_needed" name="reason_why_needed" placeholder="Reason Why It’s Needed Now" required><br><br>
+    <input type="text" id="main_benefits" name="main_benefits" placeholder="Main Benefits" required><br><br>
+    <input type="text" id="social_proof" name="social_proof" placeholder="Social Proof (e.g., review)" required><br><br>
+    <input type="text" id="price" name="price" placeholder="Normal Price" required><br><br>
+    <input type="text" id="offer" name="offer" placeholder="Special Offer" required><br><br>
+    <input type="text" id="urgency" name="urgency" placeholder="Urgency Message" required><br><br>
+    <input type="text" id="cta" name="cta" placeholder="Call to Action (CTA)" required><br><br>
+    <select id="product_type" name="product_type" required>
+        <option value="" disabled selected>Select Product Type</option>
+        <option value="Recurrent Selling Product">Recurrent Selling Product</option>
+        <option value="One time Only Selling Product">One time Only Selling Product</option>
+    </select><br><br>
+    <button type="submit">Generate Prompt</button>
+</form>
+{% endblock %}

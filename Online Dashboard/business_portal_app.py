@@ -197,10 +197,77 @@ def customer_upload():
             save_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
             file.save(save_path)
             conn.close()
-            return render_template('success.html')
+            # Render upload page with continue button
+            return render_template('CustomerUpload.html', uploaded_file=save_path, campaign_id=campaign_id)
         else:
             return "Invalid file type. Please upload a CSV file."
-    return render_template('CustomerUpload.html')
+    return render_template('CustomerUpload.html', uploaded_file=None, campaign_id=None)
+
+# Route to process the uploaded CSV and link customers to campaign
+@app.route('/process-customer-upload', methods=['POST'])
+def process_customer_upload():
+    import importlib.util
+    import sys
+    ml_dir = os.path.join(os.path.dirname(__file__), 'File Reader', 'File Reader with ML')
+    if ml_dir not in sys.path:
+        sys.path.insert(0, ml_dir)
+    ml_path = os.path.join(ml_dir, 'read_file.py')
+    spec = importlib.util.spec_from_file_location('ml_read_file', ml_path)
+    ml_read_file = importlib.util.module_from_spec(spec)
+    sys.modules['ml_read_file'] = ml_read_file
+    spec.loader.exec_module(ml_read_file)
+    file_path = request.form.get('file_path')
+    campaign_id = request.form.get('campaign_id')
+    if file_path and campaign_id:
+        ml_read_file.readData.campaignId = int(campaign_id)
+        ml_read_file.readData(file_path)
+        return render_template('success.html')
+    return "Missing file path or campaign ID."
+
+# Profile page
+@app.route('/profile')
+def profile():
+    if 'name' not in session:
+        return redirect(url_for('login'))
+    # Optionally, fetch more user info from DB here
+    return render_template('profile.html')
+
+@app.route('/campaign')
+def campaign():
+    if 'name' not in session:
+        return redirect(url_for('login'))
+    conn, cur = get_db_connection()
+    # Get businessId for the logged-in user
+    cur.execute("SELECT businessId FROM business WHERE name=?", (session['name'],))
+    business_id_row = cur.fetchone()
+    campaigns = []
+    if business_id_row:
+        business_id = business_id_row[0]
+        # Fetch all campaigns for this business
+        cur.execute("SELECT * FROM campaign WHERE businessId=? ORDER BY campaignId DESC", (business_id,))
+        columns = [desc[0] for desc in cur.description]
+        for row in cur.fetchall():
+            campaigns.append(dict(zip(columns, row)))
+    conn.close()
+    return render_template('campaign.html', name=session['name'], campaigns=campaigns)
+
+@app.route('/leads')
+def leads():
+    if 'name' not in session:
+        return redirect(url_for('login'))
+    return render_template('leads.html')
+
+@app.route('/sales')
+def sales():
+    if 'name' not in session:
+        return redirect(url_for('login'))
+    return render_template('sales.html')
+
+@app.route('/agent')
+def agent():
+    if 'name' not in session:
+        return redirect(url_for('login'))
+    return render_template('agent.html')
 
 # Start the Flask app
 if __name__ == '__main__':
