@@ -75,12 +75,4 @@ def readData(file):
         campaignId = None
         if hasattr(readData, 'campaignId'):
             campaignId = readData.campaignId
-        if campaignId is not None:
-            # If campaignId is provided, skip adding to this table or handle as needed
-            customer_table.addRow(oneInstance['mobileNo'], oneInstance['fName'], oneInstance['lName'], oneInstance['email'])
-            # Optionally, add campaign-customer link here if needed
-        else:
-            customer_table.addRow(oneInstance['mobileNo'], oneInstance['fName'], oneInstance['lName'], oneInstance['email']) # send data to database table
-
-# debug
-#readData('Online Dashboard\\File Reader\\File Reader with ML\\Pamula_5.csv')
+        customer_table.addRow(oneInstance['mobileNo'], oneInstance['fName'], oneInstance['lName'], oneInstance['email'], campaignId)
