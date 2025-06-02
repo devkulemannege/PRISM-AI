@@ -109,10 +109,9 @@ def send_template_to_all(campaign_id):
 
         # Fetch all customers associated with the campaign
         cursor.execute("""
-            SELECT c.customerId, c.fName, c.mobileNo
-            FROM customer c
-            JOIN customer_campaign cb ON c.customerId = cb.customerId
-            WHERE cb.campaignId = %s
+            SELECT customerId, fName, mobileNo
+            FROM customer 
+            WHERE campaignId = %s
         """, (campaign_id,))
         customers = cursor.fetchall()
         print(f"Found {len(customers)} customers associated with campaignId={campaign_id}")
@@ -253,54 +252,8 @@ def webhook():
         traceback.print_exc()  # Print full stack trace
     return "OK", 200
 
-def check_new_notifications():
-    print("Starting notification polling thread...")
-    while True:
-        try:
-            connection, cursor = get_db_connection()
-            cursor.execute("""
-                SELECT notificationId, campaignId
-                FROM campaign_notifications
-                WHERE processed = FALSE
-            """)
-            notifications = cursor.fetchall()
-            print(f"Found {len(notifications)} unprocessed notifications")
 
-            for notification in notifications:
-                notification_id, campaign_id = notification
-                print(f"Detected new notification for campaignId={campaign_id}")
-                response = requests.post(
-                    "http://127.0.0.1:8080/notify",
-                    json={"campaignId": campaign_id}
-                )
-                print(f"Notify endpoint response: {response.status_code}, {response.text}")
-                cursor.execute("""
-                    UPDATE campaign_notifications
-                    SET processed = TRUE
-                    WHERE notificationId = %s
-                """, (notification_id,))
-                connection.commit()
 
-            cursor.close()
-            connection.close()
-        except Exception as e:
-            print(f"Error in check_new_notifications: {e}")
-        time.sleep(5)  # Reduced for faster testing
-
-# Notification Endpoint
-@app.route('/notify', methods=['POST'])
-def notify():
-    try:
-        data = request.json
-        campaign_id = data.get('campaignId')
-        if not campaign_id:
-            return "Missing campaignId", 400
-        print(f"Received notification for campaignId={campaign_id}")
-        send_template_to_all(campaign_id)
-        return "Notification processed", 200
-    except Exception as e:
-        print(f"Error in notify endpoint: {e}")
-        return f"Error: {str(e)}", 500
 
 # API Endpoints
 @app.route("/send-template", methods=["POST"])
@@ -362,11 +315,6 @@ if __name__ == "__main__":
         flask_thread = threading.Thread(target=run_flask)
         flask_thread.daemon = True
         flask_thread.start()
-
-        # Start polling thread to check for new notifications
-        polling_thread = threading.Thread(target=check_new_notifications)
-        polling_thread.daemon = True
-        polling_thread.start()
 
         # Keep the main thread alive
         try:
