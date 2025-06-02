@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container">
+    <h2>Campaigns</h2>
+    {% if campaigns %}
+    <div style="overflow-x:auto;">
+    <table class="campaign-table">
+        <thead>
+            <tr>
+                <th>Campaign ID</th>
+                <th>Product Name</th>
+                <th>Product Type</th>
+                <th>Target Problem</th>
+                <th>Target Audience</th>
+                <th>Unique Solution</th>
+                <th>Why Needed</th>
+                <th>Main Benefits</th>
+                <th>Social Proof</th>
+                <th>Price</th>
+                <th>Offer</th>
+                <th>Urgency</th>
+                <th>CTA</th>
+                <th>Prompt</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for c in campaigns %}
+            <tr>
+                <td>{{ c['campaignId'] }}</td>
+                <td>{{ c['campaignName'] }}</td>
+                <td>{{ c.get('ProductType', c.get('ProductName', '')) }}</td>
+                <td>{{ c['targetProblem'] }}</td>
+                <td>{{ c['targetAudience'] }}</td>
+                <td>{{ c['uniqueSolution'] }}</td>
+                <td>{{ c['whyNeeded'] }}</td>
+                <td>{{ c['mainBenefits'] }}</td>
+                <td>{{ c['socialProof'] }}</td>
+                <td>{{ c['price'] }}</td>
+                <td>{{ c['offer'] }}</td>
+                <td>{{ c['urgency'] }}</td>
+                <td>{{ c['cta'] }}</td>
+                <td style="max-width:300px;overflow-x:auto;">{{ c['prompt'] }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    </div>
+    {% else %}
+    <p>No campaigns found.</p>
+    {% endif %}
+</div>
+{% endblock %}

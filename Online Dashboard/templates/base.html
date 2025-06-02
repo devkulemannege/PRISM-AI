@@ -14,9 +14,10 @@
             <span class="header-logo">PRISM AI</span>
             <nav class="header-nav">
                 <a href="{{ url_for('dashboard') }}">Dashboard</a>
-                <a href="{{ url_for('product_form') }}">Campaigns</a>
-                <a href="{{ url_for('customer_upload') }}">Leads</a>
-                <a href="{{ url_for('customer_upload') }}">Sales</a>
+                <a href="{{ url_for('campaign') }}">Campaigns</a>
+                <a href="{{ url_for('leads') }}">Leads</a>
+                <a href="{{ url_for('sales') }}">Sales</a>
+                <a href="{{ url_for('agent') }}">Agent</a>
                 <a href="{{ url_for('logout') }}">Logout</a>
             </nav>
             <a href="{{ url_for('profile') }}" class="profile-link" style="margin-left:24px;">

@@ -210,6 +210,43 @@ def profile():
     # Optionally, fetch more user info from DB here
     return render_template('profile.html')
 
+@app.route('/campaign')
+def campaign():
+    if 'name' not in session:
+        return redirect(url_for('login'))
+    conn, cur = get_db_connection()
+    # Get businessId for the logged-in user
+    cur.execute("SELECT businessId FROM business WHERE name=?", (session['name'],))
+    business_id_row = cur.fetchone()
+    campaigns = []
+    if business_id_row:
+        business_id = business_id_row[0]
+        # Fetch all campaigns for this business
+        cur.execute("SELECT * FROM campaign WHERE businessId=? ORDER BY campaignId DESC", (business_id,))
+        columns = [desc[0] for desc in cur.description]
+        for row in cur.fetchall():
+            campaigns.append(dict(zip(columns, row)))
+    conn.close()
+    return render_template('campaign.html', name=session['name'], campaigns=campaigns)
+
+@app.route('/leads')
+def leads():
+    if 'name' not in session:
+        return redirect(url_for('login'))
+    return render_template('leads.html')
+
+@app.route('/sales')
+def sales():
+    if 'name' not in session:
+        return redirect(url_for('login'))
+    return render_template('sales.html')
+
+@app.route('/agent')
+def agent():
+    if 'name' not in session:
+        return redirect(url_for('login'))
+    return render_template('agent.html')
+
 # Start the Flask app
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
