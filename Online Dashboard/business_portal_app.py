@@ -202,6 +202,14 @@ def customer_upload():
             return "Invalid file type. Please upload a CSV file."
     return render_template('CustomerUpload.html')
 
+# Profile page
+@app.route('/profile')
+def profile():
+    if 'name' not in session:
+        return redirect(url_for('login'))
+    # Optionally, fetch more user info from DB here
+    return render_template('profile.html')
+
 # Start the Flask app
 if __name__ == '__main__':
     app.run(debug=True, port=5000)

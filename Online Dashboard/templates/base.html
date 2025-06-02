@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Dashboard{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <header class="main-header">
+        <div class="header-left">
+            <span class="header-logo">PRISM AI</span>
+            <nav class="header-nav">
+                <a href="{{ url_for('dashboard') }}">Dashboard</a>
+                <a href="{{ url_for('product_form') }}">Sell Product</a>
+                <a href="{{ url_for('customer_upload') }}">Customer Upload</a>
+                <a href="{{ url_for('logout') }}">Logout</a>
+            </nav>
+        </div>
+        <div class="header-right">
+            <a href="{{ url_for('profile') }}" class="profile-link">
+                <img src="{{ url_for('static', filename='profile.png') }}" alt="Profile" class="profile-pic">
+            </a>
+        </div>
+    </header>
+    <div class="dashboard-board">
+        <nav class="dashboard-sidebar">
+            <h2>PRISM AI</h2>
+            <ul>
+                <li><a href="{{ url_for('dashboard') }}">Dashboard</a></li>
+                <li><a href="{{ url_for('product_form') }}">Sell New Product</a></li>
+                <li><a href="{{ url_for('customer_upload') }}">Customer Upload</a></li>
+                <li><a href="{{ url_for('logout') }}">Logout</a></li>
+            </ul>
+        </nav>
+        <main class="dashboard-content">
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+</body>
+</html>

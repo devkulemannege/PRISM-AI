@@ -5,6 +5,8 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
+    {% extends "base.html" %}
+    {% block content %}
     <div class="container">
         <h2>Upload Customer Data</h2>
         <form action="/customer-upload" method="POST" enctype="multipart/form-data">
@@ -12,5 +14,6 @@
             <button type="submit">Upload CSV</button>
         </form>
     </div>
+    {% endblock %}
 </body>
 </html>
