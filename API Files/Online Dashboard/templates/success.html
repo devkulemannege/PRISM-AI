@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Success</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h2>Campaign Created & Customer Data Uploaded Successfully!</h2>
+        <p>Your campaign has been created and your customer CSV file has been uploaded.</p>
+        <a href="{{ url_for('dashboard') }}" class="button-link">Go to Dashboard</a>
+    </div>
+</body>
+</html>

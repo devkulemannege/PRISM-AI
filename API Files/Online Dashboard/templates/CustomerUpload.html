@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Customer Upload</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    {% extends "base.html" %}
+    {% block content %}
+    <div class="container">
+        <h2>Upload Customer Data</h2>
+        {% if uploaded_file and campaign_id %}
+            <p>File uploaded: <strong>{{ uploaded_file }}</strong></p>
+            <form action="/process-customer-upload" method="POST">
+                <input type="hidden" name="file_path" value="{{ uploaded_file }}">
+                <input type="hidden" name="campaign_id" value="{{ campaign_id }}">
+                <button type="submit">Continue</button>
+            </form>
+        {% else %}
+            <form action="/customer-upload" method="POST" enctype="multipart/form-data">
+                <input type="file" name="csv_file" accept=".csv" required><br><br>
+                <button type="submit">Upload CSV</button>
+            </form>
+        {% endif %}
+    </div>
+    {% endblock %}
+</body>
+</html>

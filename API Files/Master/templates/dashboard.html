@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    {% extends "base.html" %}
+    {% block content %}
+    <div class="container">
+        <h2>Welcome, {{ name }}!</h2>
+        <p>This is your secure dashboard.</p>
+    </div>
+    {% endblock %}
+</body>
+</html>
