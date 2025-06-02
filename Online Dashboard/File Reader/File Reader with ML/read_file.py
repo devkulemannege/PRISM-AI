@@ -71,7 +71,11 @@ def readData(file):
 
             else: print('No Column Catagory Found.')     
 
-        customer_table.addRow(oneInstance['mobileNo'], oneInstance['fName'], oneInstance['lName'], oneInstance['email']) # send data to database table
+        # Get campaignId if available in context (e.g., pass as argument or set globally)
+        campaignId = None
+        if hasattr(readData, 'campaignId'):
+            campaignId = readData.campaignId
+        customer_table.addRow(oneInstance['mobileNo'], oneInstance['fName'], oneInstance['lName'], oneInstance['email'], campaignId) # send data to database table
 
 # debug
 #readData('Online Dashboard\\File Reader\\File Reader with ML\\Pamula_5.csv')
