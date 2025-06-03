@@ -3,6 +3,14 @@ import customer_table
 import pathlib
 from machine_model import identify
 
+def mobFix(dict, index0):
+    '''function which adjusts mobile number
+    according to needs'''
+    mobFixList = []
+    mobFixList = dict['mobileNo'].split()
+    mobFixList.insert(0, index0)
+    dict['mobileNo'] = ''.join(map(str, mobFixList))
+
 def readData(file):
     '''Reads the entirety of the imported CSV file.
     sends data to the database as well'''
@@ -67,12 +75,19 @@ def readData(file):
             
             elif str(identify(passValue)) == "['emailHeaders']": oneInstance['email'] = cell # if cell contains email data               
 
-            elif str(identify(passValue)) == "['mobileNumHeaders']": oneInstance['mobileNo'] = cell # if cell contains mobile number data    
-
-            else: print('No Column Catagory Found.')     
+            elif str(identify(passValue)) == "['mobileNumHeaders']": oneInstance['mobileNo'] = cell # if cell contains mobile number data         
 
         # Get campaignId if available in context (e.g., pass as argument or set globally)
         campaignId = None
         if hasattr(readData, 'campaignId'):
             campaignId = readData.campaignId
+
+        # fix missing '+' in country code and first '0' in local numbers
+        if len(oneInstance['mobileNo']) == 9:
+            mobFix(oneInstance, '0')
+        elif len(oneInstance['mobileNo']) == 11 and oneInstance['mobileNo'][0] != '+':
+            mobFix(oneInstance, '+')
+
         customer_table.addRow(oneInstance['mobileNo'], oneInstance['fName'], oneInstance['lName'], oneInstance['email'], campaignId)
+
+#readData('C:\\Users\\Devpriya\\Documents\\Extra\\readExcel.xlsx')
