@@ -31,7 +31,7 @@ def identify(keyword):
     predict = model.predict(inputDataVec) # identification using xTrainVector Vector
     confidency = model.predict_proba(inputDataVec)
         
-    if max(confidency[0]) < 0.4: return 'None'
+    if max(confidency[0]) < 0.5: return 'None'
     else: return dataEncode.inverse_transform(predict)
 
 # debug
