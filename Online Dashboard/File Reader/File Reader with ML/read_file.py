@@ -3,14 +3,6 @@ import customer_table
 import pathlib
 from machine_model import identify
 
-def mobFix(dict, index0):
-    '''function which adjusts mobile number
-    according to needs'''
-    mobFixList = []
-    mobFixList = dict['mobileNo'].split()
-    mobFixList.insert(0, index0)
-    dict['mobileNo'] = ''.join(map(str, mobFixList))
-
 def readData(file):
     '''Reads the entirety of the imported CSV file.
     sends data to the database as well'''
@@ -84,9 +76,22 @@ def readData(file):
 
         # fix missing '+' in country code and first '0' in local numbers
         if len(oneInstance['mobileNo']) == 9:
-            mobFix(oneInstance, '0')
-        elif len(oneInstance['mobileNo']) == 11 and oneInstance['mobileNo'][0] != '+':
-            mobFix(oneInstance, '+')
+            mobFixList = []
+            mobFixList = oneInstance['mobileNo'].split()
+            mobFixList.insert(0, '0')
+            oneInstance['mobileNo'] = ''.join(map(str, mobFixList))
+
+        elif (len(oneInstance['mobileNo']) == 11 or len(oneInstance['mobileNo']) == 10) and (oneInstance['mobileNo'][0] != '+'):
+            mobFixList = []
+            for i in oneInstance['mobileNo']: mobFixList.append(i)
+            if len(mobFixList) == 10: 
+                del(mobFixList[0])
+            else:
+                del(mobFixList[0])
+                del(mobFixList[0])
+
+            mobFixList.insert(0, '0')
+            oneInstance['mobileNo'] = ''.join(map(str, mobFixList))
 
         customer_table.addRow(oneInstance['mobileNo'], oneInstance['fName'], oneInstance['lName'], oneInstance['email'], campaignId)
 
