@@ -24,8 +24,8 @@ def addRow(db_sender, campaign_id, ai_reply, text):
           connection, cont = connect_db.get_db_connection()
           try:
               cont.execute('INSERT INTO chatlog (customerId, LLM_msg, customer_msg, campaignId) VALUES (%s, %s, %s, %s)',
-                          (int(customerId), ai_reply, text, campaign_id))  # insert data as new row
-              cont.execute('UPDATE customer SET pastConversation = 1 WHERE customerId = %s', (int(customerId),))  # updates pastConversation in customer table
+                          (int(customerId[0]), ai_reply, text, campaign_id))  # insert data as new row
+              cont.execute('UPDATE customer SET pastConversation = 1 WHERE customerId = %s', (int(customerId[0]),))  # updates pastConversation in customer table
               connection.commit()
           except Exception as error:
               raise Exception(f'Error location: chatlog_table.py | unable to insert data. | Detailed: {error}')  # error identification

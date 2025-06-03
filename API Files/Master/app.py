@@ -155,6 +155,21 @@ def generate_prompt():
 
     one_time_prompt = f"""PRISM AI presents: {product_name}! If you've ever struggled with {target_problem}, you're not alone. {product_name} is a one-time breakthrough for {target_audience}, offering {unique_solution}. Why now? {reason_why_needed}. Key benefits: {main_benefits}. Hear from our users: {social_proof}. Usual price: {price}, special offer: {offer}. {urgency} Act fast—{cta}"""
 
+    #Choose the massage template and the mass based on user input
+    Massage_template="test" #for now
+    if Massage_template == "retail":
+        template= "retail_template"
+        template_parameters="customer_name,business_name,description,product_name"
+    elif Massage_template == "PC":
+        template = "PC_template"
+        template_parameters="customer_name,business_name"
+    elif Massage_template == "test":
+        template = "test_template"
+        template_parameters="customer_name"
+    else:
+        template = "test_template"
+        template_parameters="customer_name"
+
     # Choose prompt based on product type
     if product_type == "Recurrent Selling Product":
         prompt = recurrent_prompt
@@ -174,7 +189,8 @@ def generate_prompt():
             business_id,
             product_name,
             prompt,
-            '', '',
+            template, 
+            template_parameters,
             target_problem,
             target_audience,
             unique_solution,
@@ -228,6 +244,7 @@ def customer_upload():
             return "Invalid file type. Please upload a CSV file."
     return render_template('CustomerUpload.html', uploaded_file=None, campaign_id=None)
 
+
 # Route to process the uploaded CSV and link customers to campaign
 @app.route('/process-customer-upload', methods=['POST'])
 def process_customer_upload():
@@ -246,6 +263,7 @@ def process_customer_upload():
     if file_path and campaign_id:
         ml_read_file.readData.campaignId = int(campaign_id)
         ml_read_file.readData(file_path)
+        send_template_to_all(int(campaign_id))  # Automatically send outbound messages after upload
         return render_template('success.html')
     return "Missing file path or campaign ID."
 
@@ -501,6 +519,7 @@ def webhook():
                         try:
                             cursor.execute("SELECT customerId FROM customer WHERE mobileNo = %s", (db_sender,))
                             customer_row = cursor.fetchone()
+                            print(f"Fetched customer row: {customer_row}")
                             if customer_row:
                                 customer_id = customer_row[0]
                                 # Try to get campaign from customer_campaign, fallback to latest campaign for customer
@@ -511,6 +530,7 @@ def webhook():
                                     WHERE cb.customerId = %s LIMIT 1
                                 """, (customer_id,))
                                 campaign_row = cursor.fetchone()
+                                print(f"Fetched campaign row: {campaign_row}")
                                 if campaign_row:
                                     campaign_id = campaign_row[0]
                                 else:
@@ -537,7 +557,7 @@ def webhook():
                     send_whatsapp_message(sender, ai_reply)
 
                     # Save conversation
-                    if customer_id and campaign_id:
+                    if campaign_id:
                         addRow(db_sender, campaign_id, ai_reply, text)
                     else:
                         print("Skipping saving conversation due to missing customer_id or campaign_id")
