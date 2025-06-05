@@ -67,12 +67,32 @@ def readData(file):
             
             elif str(identify(passValue)) == "['emailHeaders']": oneInstance['email'] = cell # if cell contains email data               
 
-            elif str(identify(passValue)) == "['mobileNumHeaders']": oneInstance['mobileNo'] = cell # if cell contains mobile number data    
-
-            else: print('No Column Catagory Found.')     
+            elif str(identify(passValue)) == "['mobileNumHeaders']": oneInstance['mobileNo'] = cell # if cell contains mobile number data         
 
         # Get campaignId if available in context (e.g., pass as argument or set globally)
         campaignId = None
         if hasattr(readData, 'campaignId'):
             campaignId = readData.campaignId
+
+        # fix missing '+' in country code and first '0' in local numbers
+        if len(oneInstance['mobileNo']) == 9:
+            mobFixList = []
+            mobFixList = oneInstance['mobileNo'].split()
+            mobFixList.insert(0, '0')
+            oneInstance['mobileNo'] = ''.join(map(str, mobFixList))
+
+        elif (len(oneInstance['mobileNo']) == 11 or len(oneInstance['mobileNo']) == 10) and (oneInstance['mobileNo'][0] != '+'):
+            mobFixList = []
+            for i in oneInstance['mobileNo']: mobFixList.append(i)
+            if len(mobFixList) == 10: 
+                del(mobFixList[0])
+            else:
+                del(mobFixList[0])
+                del(mobFixList[0])
+
+            mobFixList.insert(0, '0')
+            oneInstance['mobileNo'] = ''.join(map(str, mobFixList))
+
         customer_table.addRow(oneInstance['mobileNo'], oneInstance['fName'], oneInstance['lName'], oneInstance['email'], campaignId)
+
+#readData('C:\\Users\\Devpriya\\Documents\\Extra\\readExcel.xlsx')
