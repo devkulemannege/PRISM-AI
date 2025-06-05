@@ -1,7 +1,7 @@
 import mariadb as mdb
-from connect_db import get_db_connection
+from connect_db import connection
 
-connection, cursor = get_db_connection()
+connection, cursor = connection()
 
 def addRow(mobileNo, fName, lName, email, campaignId=None):
     '''function which can be used to add rows

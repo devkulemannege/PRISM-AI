@@ -92,7 +92,7 @@ def readData(file):
 
             mobFixList.insert(0, '0')
             oneInstance['mobileNo'] = ''.join(map(str, mobFixList))
-
+        #print(oneInstance)
         customer_table.addRow(oneInstance['mobileNo'], oneInstance['fName'], oneInstance['lName'], oneInstance['email'], campaignId)
 
-#readData('C:\\Users\\Devpriya\\Documents\\Extra\\readExcel.xlsx')
+readData('C:\\Users\\Devpriya\\Documents\\Extra\\readExcel.xlsx')
