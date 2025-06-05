@@ -24,13 +24,13 @@ def get_db_connection():
             password=DB_PASSWORD,
             database=DB_NAME
         )
-        cursor = connection.cursor()
+        cursor = connection.cursor(buffered=True)
         return connection, cursor
     except Error as e:
         print(f"Error connecting to mariadb: {e}")
         return None
-    
-  
+
+
 
 
 

@@ -511,39 +511,41 @@ def webhook():
                         db_sender = '0' + db_sender[2:]
                     print(f"Formatted sender for database: {db_sender}")
 
-                    # Fetch customerId and campaign details
+                    # Fetch customerId and campaign details using separate cursors
                     connection, cursor = get_db_connection()
                     customer_id = None
                     campaign_id = None
-                    if connection and cursor:
-                        try:
-                            cursor.execute("SELECT customerId FROM customer WHERE mobileNo = %s", (db_sender,))
-                            customer_row = cursor.fetchone()
-                            print(f"Fetched customer row: {customer_row}")
-                            if customer_row:
-                                customer_id = customer_row[0]
-                                # Try to get campaign from customer_campaign, fallback to latest campaign for customer
-                                cursor.execute("""
+                    try:
+                        cursor.execute("SELECT customerId FROM customer WHERE mobileNo = %s", (db_sender,))
+                        customer_row = cursor.fetchone()
+                        print(f"Fetched customer row: {customer_row}")
+                        if customer_row:
+                            customer_id = customer_row[0]
+                            # Use a new cursor for campaign queries to avoid 'Unread result found'
+                            cursor2 = connection.cursor()
+                            try:
+                                cursor2.execute("""
                                     SELECT b.campaignId
                                     FROM campaign b
                                     JOIN customer_campaign cb ON b.campaignId = cb.campaignId
                                     WHERE cb.customerId = %s LIMIT 1
                                 """, (customer_id,))
-                                campaign_row = cursor.fetchone()
+                                campaign_row = cursor2.fetchone()
                                 print(f"Fetched campaign row: {campaign_row}")
                                 if campaign_row:
                                     campaign_id = campaign_row[0]
                                 else:
-                                    # Fallback: get latest campaign for this customer
-                                    cursor.execute("SELECT campaignId FROM customer WHERE customerId = %s ORDER BY campaignId DESC LIMIT 1", (customer_id,))
-                                    fallback_row = cursor.fetchone()
+                                    cursor2.execute("SELECT campaignId FROM customer WHERE customerId = %s ORDER BY campaignId DESC LIMIT 1", (customer_id,))
+                                    fallback_row = cursor2.fetchone()
                                     if fallback_row:
                                         campaign_id = fallback_row[0]
-                        except Error as e:
-                            print(f"Database error fetching customer/campaign: {e}")
-                        finally:
-                            cursor.close()
-                            connection.close()
+                            finally:
+                                cursor2.close()
+                    except Error as e:
+                        print(f"Database error fetching customer/campaign: {e}")
+                    finally:
+                        cursor.close()
+                        connection.close()
 
                     # Initialize LangChain conversation
                     print(f"Initialized LangChain conversation for customerId={customer_id}, sender={db_sender}")
