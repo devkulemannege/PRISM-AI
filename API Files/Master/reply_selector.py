@@ -15,6 +15,7 @@ def identifyRepliedMSg(llmMsgs, customerMsg):
     # identify replied msg using cosin sim
     for msg in llmMsgEncode: scores.append(util.cos_sim(cusMsgEncode, msg))
     for score in scores: formattedScores.append(score.squeeze().item()) # convert to raw list & extract raw values (float)
+    print(f'Cosine Similarity Scores: {formattedScores}') # print scores for debugging purposes
     return llmMsgs[formattedScores.index(max(formattedScores))] # return the msg with the highest similarity
 
 '''

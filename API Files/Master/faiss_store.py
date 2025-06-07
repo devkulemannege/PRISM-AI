@@ -25,7 +25,7 @@ def load_vector_store():
         with open(META_DB_PATH, 'rb') as f:
             meta = pickle.load(f)
     else:
-        index = faiss.IndexFlatL2(EMBEDDING_MODEL.get_sentence_embedding_dimension())
+        index = faiss.IndexFlatL2(EMBEDDING_MODEL.get_sentence_embedding_dimension())# Create a new index
         meta = []
     return index, meta
 

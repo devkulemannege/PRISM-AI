@@ -45,9 +45,12 @@ def initialize_llm_chain(customer_id, db_sender):
                 WHERE cb.customerId = %s LIMIT 1
             """, (customer_id,))
             campaign_row = cursor.fetchone()
+            campaign_data = None
             if campaign_row:
                 campaign_id, campaign_name, db_prompt = campaign_row
-                if db_prompt:  # Use the campaign-specific prompt if available
+                # Fetch campaign data from vector store
+                campaign_data = fetch_campaign_by_name(campaign_name)
+                if db_prompt:
                     campaign_prompt = db_prompt
 
             # Load conversation history from chatlog
@@ -65,6 +68,10 @@ def initialize_llm_chain(customer_id, db_sender):
             cursor.close()
             connection.close()
 
+    # Extract extra fields from campaign_data if available
+    offer = campaign_data.get('offer', '') if campaign_data else ''
+    main_benefits = campaign_data.get('main_benefits', '') if campaign_data else ''
+
     # Initialize ChatMessageHistory for this session
     session_id = str(customer_id) if customer_id else db_sender
     if session_id not in session_histories:
@@ -80,10 +87,18 @@ def initialize_llm_chain(customer_id, db_sender):
             session_histories[session_id] = ChatMessageHistory()
         return session_histories[session_id]
 
-    # Create PromptTemplate with dynamic prompt
+    # Update prompt template to include offer and main_benefits
     prompt_template = PromptTemplate(
-        input_variables=["history", "input", "customer_name", "campaign_name"],
-        template=campaign_prompt
+        input_variables=["history", "input", "customer_name", "campaign_name", "offer", "main_benefits"],
+        template="""
+        You are a friendly and concise WhatsApp bot and YOUR PRISM-AI whatsapp agent. Respond in a helpful and conversational tone as a real sales agent, keeping replies under 100 words.\n
+        Customer Name: {customer_name}\n
+        Campaign Name: {campaign_name}\n
+        Offer: {offer}\n
+        Main Benefits: {main_benefits}\n
+        Conversation History: {history}\n
+        User Message: {input}\n
+        """
     )
 
     # Build the runnable chain
@@ -95,8 +110,28 @@ def initialize_llm_chain(customer_id, db_sender):
         history_messages_key="history"
     )
 
-    # Return the runnable and context variables
-    return runnable, customer_name, campaign_name
+    # Return the runnable and context variables (add offer and main_benefits)
+    return runnable, customer_name, campaign_name, offer, main_benefits
+
+import faiss
+import pickle
+from sentence_transformers import SentenceTransformer
+
+def fetch_campaign_by_name(campaign_name, faiss_index_path="campaign_vector.index", meta_path="campaign_vector_meta.pkl"):
+    # Load FAISS index and metadata
+    faiss_index = faiss.read_index(faiss_index_path)
+    with open(meta_path, "rb") as f:
+        campaign_meta = pickle.load(f)  # List of dicts or objects
+
+    # Encode the campaign name
+    model = SentenceTransformer('all-MiniLM-L6-v2')
+    campaign_vec = model.encode([campaign_name])
+
+    # Search for the most similar campaign
+    D, I = faiss_index.search(campaign_vec, k=1)
+    best_idx = I[0][0]
+    best_campaign = campaign_meta[best_idx]
+    return best_campaign
 
 def call_llm_with_chain(runnable, user_input, customer_name, campaign_name, session_id=None):
     try:

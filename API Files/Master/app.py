@@ -542,9 +542,9 @@ def verify():
     
 @app.route("/webhook", methods=["POST"])
 def webhook():
-    # Handle incoming messages from WhatsApp
+    # Essential: Log every POST request
+    print("Webhook POST hit!")
     data = request.json
-    print(f"Incoming webhook data: {data}")
     try:
         if "entry" in data and len(data["entry"]) > 0:
             entry = data["entry"][0]
@@ -554,7 +554,7 @@ def webhook():
                     message = change["value"]["messages"][0]
                     sender = message["from"]
                     text = message.get("text", {}).get("body", "No text")
-                    print(f"Received message from {sender}: {text}")
+                    print(f"Received WhatsApp message from {sender}: {text}")
 
                     # Keep original sender for WhatsApp API, format for database
                     db_sender = sender
@@ -579,7 +579,7 @@ def webhook():
                                     SELECT b.campaignId
                                     FROM campaign b
                                     JOIN customer_campaign cb ON b.campaignId = cb.campaignId
-                                    WHERE cb.customerId = %s LIMIT 1
+                                    WHERE cb.customerId = %s LIMIT 5
                                 """, (customer_id,))
                                 campaign_row = cursor2.fetchone()
                                 print(f"Fetched campaign row: {campaign_row}")
