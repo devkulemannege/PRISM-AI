@@ -1,14 +1,25 @@
-import mariadb as mdb
-from connect_db import connection
+# Fix import so it always loads the local connect_db, not the one in Master/
+import sys
+import os
+import importlib.util
 
-connection, cursor = connection()
+# Use absolute import with full path manipulation to force import from the correct file
+connect_db_path = os.path.join(os.path.dirname(__file__), 'connect_db.py')
+spec = importlib.util.spec_from_file_location('connect_db_local', connect_db_path)
+connect_db_local = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(connect_db_local)
+connection = connect_db_local.connection
+
+connect, cursor = connection()
 
 def addRow(mobileNo, fName, lName, email, campaignId=None):
     '''function which can be used to add rows
     to the customer data table in the database'''
     customerId = 0
     pastConversation = 0
-    
+    if connect is None or cursor is None:
+        print("Database connection not available.")
+        return
     try:
         if campaignId is not None:
             cursor.execute('INSERT INTO customer (mobileNo, fName, lName, email, campaignId, pastConversation) VALUES (%s, %s, %s, %s, %s, %s)',
@@ -16,20 +27,23 @@ def addRow(mobileNo, fName, lName, email, campaignId=None):
         else:
             cursor.execute('INSERT INTO customer (mobileNo, fName, lName, email, pastConversation) VALUES (%s, %s, %s, %s, %s)',
                         (mobileNo, fName, lName, email, pastConversation))
+        connect.commit()  # Commit after insert
     except Exception as error: 
         raise Exception(f'Error location: customer_table.py | Detailed: {error}') # Error identification
     
-    # DISCLAIMER: code below does not LOGICALLY work.
+    # Update pastConversation if customer has chatlog
     try:
-        cursor.execute(f"SELECT customerId FROM customer WEHRE mobileNo = '{mobileNo}'")
-        customerId = cursor.fetchall() # fetch customerId corresponding to phone number
-
-        cursor.execute(f"SELECT msgId FROM chatlog WHERE customerId = {int(customerId[0][0])}")
-        cursor.execute(f"UPDATE customer SET pastConversation = 1 WEHRE customerId = {int(customerId[0][0])}") # update pastConversation column
-    except:
-        pastConversation = 0
-
-    connection.commit()
+        cursor.execute("SELECT customerId FROM customer WHERE mobileNo = %s", (mobileNo,))
+        customerId_row = cursor.fetchone()
+        if customerId_row:
+            customerId = customerId_row[0]
+            cursor.execute("SELECT COUNT(*) FROM chatlog WHERE customerId = %s", (int(customerId),))
+            msg_count = cursor.fetchone()[0]
+            if msg_count > 0:
+                cursor.execute("UPDATE customer SET pastConversation = 1 WHERE customerId = %s", (int(customerId),))
+                connect.commit()
+    except Exception as e:
+        print(f"Error updating pastConversation: {e}")
 
 # for debugging purposes
 '''

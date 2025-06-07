@@ -204,7 +204,52 @@ def generate_prompt():
             product_type
         ))
         conn.commit()
+
+        STORE = "faiss"  # for now, fix typo from 'fiass'
+        # Save the campaign details and sales into a vector database
+
+        if STORE == 'faiss':
+            # === Add campaign details to vector store FAISS LOCALLY ===
+            from faiss_store import add_campaign_to_vector_store
+            add_campaign_to_vector_store(
+            campaign_id=cur.lastrowid,
+            campaign_name=product_name,
+            product_type=product_type,
+            target_audience=target_audience,
+            target_problem=target_problem,
+            unique_solution=unique_solution,
+            reason_why_needed=reason_why_needed,
+            main_benefits=main_benefits,
+            social_proof=social_proof,
+            price=price,
+            offer=offer,
+            urgency=urgency,
+            cta=cta
+       )
+        elif STORE == 'qdrant':
+            # === Add campaign details to vector store Qdrant ===
+            from Qdrant_store import add_campaign_to_vector_store
+            add_campaign_to_vector_store(
+                campaign_id=cur.lastrowid,
+                campaign_name=product_name,
+                product_type=product_type,
+                target_audience=target_audience,
+                target_problem=target_problem,
+                unique_solution=unique_solution,
+                reason_why_needed=reason_why_needed,
+                main_benefits=main_benefits,
+                social_proof=social_proof,
+                price=price,
+                offer=offer,
+                urgency=urgency,
+                cta=cta
+            )
+        else:
+            print("Invalid vector store option. Please choose 'faiss' or 'qdrant'.")
+
     conn.close()
+
+    
 
     # Redirect to customer upload page after product submission
     return redirect(url_for('customer_upload'))
@@ -260,6 +305,12 @@ def process_customer_upload():
     spec.loader.exec_module(ml_read_file)
     file_path = request.form.get('file_path')
     campaign_id = request.form.get('campaign_id')
+    # Fix: If file_path is None, use the last uploaded file from CustomerUpload
+    if not file_path:
+        upload_folder = app.config['UPLOAD_FOLDER']
+        files = [os.path.join(upload_folder, f) for f in os.listdir(upload_folder) if f.endswith('.csv')]
+        if files:
+            file_path = max(files, key=os.path.getctime)
     if file_path and campaign_id:
         ml_read_file.readData.campaignId = int(campaign_id)
         ml_read_file.readData(file_path)
@@ -547,6 +598,9 @@ def webhook():
                         cursor.close()
                         connection.close()
 
+                    #To print the massage to the ML model
+                    print(f"text: {text}")
+                    
                     # Initialize LangChain conversation
                     print(f"Initialized LangChain conversation for customerId={customer_id}, sender={db_sender}")
                     runnable, customer_name, campaign_name = initialize_llm_chain(customer_id, db_sender)
