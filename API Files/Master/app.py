@@ -579,7 +579,7 @@ def webhook():
                                     SELECT b.campaignId
                                     FROM campaign b
                                     JOIN customer_campaign cb ON b.campaignId = cb.campaignId
-                                    WHERE cb.customerId = %s LIMIT 5
+                                    WHERE cb.customerId = %s LIMIT 1
                                 """, (customer_id,))
                                 campaign_row = cursor2.fetchone()
                                 print(f"Fetched campaign row: {campaign_row}")
