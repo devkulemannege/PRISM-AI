@@ -570,40 +570,24 @@ def webhook():
                         cursor.execute("SELECT customerId FROM customer WHERE mobileNo = %s", (db_sender,))
                         customer_row = cursor.fetchone()
                         print(f"Fetched customer row: {customer_row}")
-                        if customer_row:
-                            customer_id = customer_row[0]
-                            # Use a new cursor for campaign queries to avoid 'Unread result found'
-                            cursor2 = connection.cursor()
-                            try:
-                                cursor2.execute("""
-                                    SELECT b.campaignId
-                                    FROM campaign b
-                                    JOIN customer_campaign cb ON b.campaignId = cb.campaignId
-                                    WHERE cb.customerId = %s LIMIT 5
-                                """, (customer_id,))
-                                campaign_row = cursor2.fetchone()
-                                print(f"Fetched campaign row: {campaign_row}")
-                                if campaign_row:
-                                    campaign_id = campaign_row[0]
-                                else:
-                                    cursor2.execute("SELECT campaignId FROM customer WHERE customerId = %s ORDER BY campaignId DESC LIMIT 1", (customer_id,))
-                                    fallback_row = cursor2.fetchone()
-                                    if fallback_row:
-                                        campaign_id = fallback_row[0]
-                            finally:
-                                cursor2.close()
+                        customer_id= customer_row[0] if customer_row else None
                     except Error as e:
-                        print(f"Database error fetching customer/campaign: {e}")
+                        print(f"Database error fetching customer: {e}")
                     finally:
                         cursor.close()
                         connection.close()
 
-                    #To print the massage to the ML model
+                    #To send the massage to the ML model to identify the campaign
+                    from faiss_store import find_relevant_campaign
                     print(f"text: {text}")
+                    campaign_id = find_relevant_campaign(text, "Master/campaign_vector.index", "Master/campaign_vector_meta.pkl") if campaign_id else None
+                    print("Most relevant campaign found:")
+                    print(campaign_id)
+
                     
                     # Initialize LangChain conversation
                     print(f"Initialized LangChain conversation for customerId={customer_id}, sender={db_sender}")
-                    runnable, customer_name, campaign_name = initialize_llm_chain(customer_id, db_sender)
+                    runnable, customer_name, campaign_name = initialize_llm_chain(customer_id, db_sender, campaign_id)
 
                     # Generate AI reply using LangChain
                     ai_reply = call_llm_with_chain(runnable, text, customer_name, campaign_name, session_id=customer_id)

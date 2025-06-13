@@ -5,6 +5,7 @@ import os
 import pickle
 from sentence_transformers import SentenceTransformer
 import faiss
+import numpy as np
 
 
 #
@@ -69,3 +70,21 @@ def search_campaigns(query, top_k=3):
         return []
     D, I = index.search(embedding, top_k)
     return [meta[i] for i in I[0] if i < len(meta)]
+
+def find_relevant_campaign(text, faiss_index_path="Master/campaign_vector.index", meta_path="Master/campaign_vector_meta.pkl"):
+    # Load FAISS index and metadata
+    faiss_index = faiss.read_index(faiss_index_path)
+    with open(meta_path, "rb") as f:
+        campaign_meta = pickle.load(f)  # List of dicts or objects
+
+    # Encode the user message
+    model = SentenceTransformer('all-mpnet-base-v2')
+    user_vec = model.encode([text])
+    if user_vec.ndim == 1:
+        user_vec = np.expand_dims(user_vec, axis=0)  # Ensure user_vec is 2D
+
+    # Search for the most similar campaign
+    D, I = faiss_index.search(user_vec, k=1)
+    best_idx = I[0][0]
+    # Return only the campaign_id
+    return campaign_meta[best_idx]['campaign_id'] if best_idx < len(campaign_meta) else None
