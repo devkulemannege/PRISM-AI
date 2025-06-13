@@ -69,6 +69,7 @@ def readData(file):
 
             elif str(identify(passValue)) == "['mobileNumHeaders']": oneInstance['mobileNo'] = cell # if cell contains mobile number data         
 
+<<<<<<< Updated upstream
         # Get campaignId if available in context (e.g., pass as argument or set globally)
         campaignId = None
         if hasattr(readData, 'campaignId'):
@@ -96,3 +97,9 @@ def readData(file):
         customer_table.addRow(oneInstance['mobileNo'], oneInstance['fName'], oneInstance['lName'], oneInstance['email'], campaignId)
 
 #readData('C:\\Users\\Devpriya\\Documents\\Extra\\readExcel.xlsx')
+=======
+        customer_table.addRow(oneInstance['mobileNo'], oneInstance['fName'], oneInstance['lName'], oneInstance['email']) # send data to database table
+
+# debug
+#readData('Online Dashboard\\File Reader\\File Reader with ML\\Pamula_5.csv')
+>>>>>>> Stashed changes
