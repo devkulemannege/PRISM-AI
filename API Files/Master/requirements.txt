@@ -1,0 +1,40 @@
+# Core web and API
+flask
+requests
+werkzeug
+python-dotenv
+
+# Database
+mysql-connector-python
+
+# AI/LLM and LangChain
+langchain
+langchain-groq
+langchain-community
+langchain-core
+sentence-transformers
+faiss-cpu
+
+# Embeddings
+transformers
+
+# Data
+pandas
+
+# Utility
+python-dotenv
+
+# For Qdrant (if using cloud vector store)
+qdrant-client
+
+# For output parsing and validation (optional, for advanced LangChain usage)
+pydantic
+
+# For development and debugging (optional)
+pytest
+
+# If using HuggingFaceHub (optional, for some LangChain retrievers)
+huggingface-hub
+
+# If using OpenAI (optional, for some LangChain LLMs)
+openai
