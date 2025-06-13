@@ -197,102 +197,10 @@ def customer_upload():
             save_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
             file.save(save_path)
             conn.close()
-            # Render upload page with continue button
-            return render_template('CustomerUpload.html', uploaded_file=save_path, campaign_id=campaign_id)
+            return render_template('success.html')
         else:
             return "Invalid file type. Please upload a CSV file."
-    return render_template('CustomerUpload.html', uploaded_file=None, campaign_id=None)
-
-# Route to process the uploaded CSV and link customers to campaign
-@app.route('/process-customer-upload', methods=['POST'])
-def process_customer_upload():
-    import importlib.util
-    import sys
-    ml_dir = os.path.join(os.path.dirname(__file__), 'File Reader', 'File Reader with ML')
-    if ml_dir not in sys.path:
-        sys.path.insert(0, ml_dir)
-    ml_path = os.path.join(ml_dir, 'read_file.py')
-    spec = importlib.util.spec_from_file_location('ml_read_file', ml_path)
-    ml_read_file = importlib.util.module_from_spec(spec)
-    sys.modules['ml_read_file'] = ml_read_file
-    spec.loader.exec_module(ml_read_file)
-    file_path = request.form.get('file_path')
-    campaign_id = request.form.get('campaign_id')
-    if file_path and campaign_id:
-        ml_read_file.readData.campaignId = int(campaign_id)
-        ml_read_file.readData(file_path)
-        return render_template('success.html')
-    return "Missing file path or campaign ID."
-
-# Profile page
-@app.route('/profile', methods=['GET', 'POST'])
-def profile():
-    if 'name' not in session:
-        return redirect(url_for('login'))
-    conn, cur = get_db_connection()
-    # Fetch businessId for the logged-in user
-    cur.execute("SELECT businessId FROM business WHERE name=?", (session['name'],))
-    business_id_row = cur.fetchone()
-    business_id = business_id_row[0] if business_id_row else None
-    # Fetch customer row for this business (assuming 1:1 business-customer for profile)
-    cur.execute("SELECT * FROM customer WHERE campaignId IN (SELECT campaignId FROM campaign WHERE businessId=?) ORDER BY customerId DESC LIMIT 1", (business_id,))
-    customer = cur.fetchone()
-    columns = [desc[0] for desc in cur.description]
-    customer_dict = dict(zip(columns, customer)) if customer else None
-    profile_pic_url = url_for('static', filename='profile.png')
-    if customer_dict and customer_dict.get('profile_pic'):
-        profile_pic_url = url_for('static', filename='profile_pics/' + customer_dict['profile_pic'])
-    if request.method == 'POST':
-        file = request.files.get('profile_pic')
-        if file and file.filename:
-            filename = secure_filename(file.filename)
-            pic_folder = os.path.join(app.static_folder, 'profile_pics')
-            if not os.path.exists(pic_folder):
-                os.makedirs(pic_folder)
-            file.save(os.path.join(pic_folder, filename))
-            # Save filename in DB
-            cur.execute("UPDATE customer SET profile_pic=? WHERE customerId=?", (filename, customer_dict['customerId']))
-            conn.commit()
-            profile_pic_url = url_for('static', filename='profile_pics/' + filename)
-    conn.close()
-    return render_template('profile.html', profile_pic_url=profile_pic_url, customer=customer_dict)
-
-@app.route('/campaign')
-def campaign():
-    if 'name' not in session:
-        return redirect(url_for('login'))
-    conn, cur = get_db_connection()
-    # Get businessId for the logged-in user
-    cur.execute("SELECT businessId FROM business WHERE name=?", (session['name'],))
-    business_id_row = cur.fetchone()
-    campaigns = []
-    if business_id_row:
-        business_id = business_id_row[0]
-        # Fetch all campaigns for this business
-        cur.execute("SELECT * FROM campaign WHERE businessId=? ORDER BY campaignId DESC", (business_id,))
-        columns = [desc[0] for desc in cur.description]
-        for row in cur.fetchall():
-            campaigns.append(dict(zip(columns, row)))
-    conn.close()
-    return render_template('campaign.html', name=session['name'], campaigns=campaigns)
-
-@app.route('/leads')
-def leads():
-    if 'name' not in session:
-        return redirect(url_for('login'))
-    return render_template('leads.html')
-
-@app.route('/sales')
-def sales():
-    if 'name' not in session:
-        return redirect(url_for('login'))
-    return render_template('sales.html')
-
-@app.route('/agent')
-def agent():
-    if 'name' not in session:
-        return redirect(url_for('login'))
-    return render_template('agent.html')
+    return render_template('CustomerUpload.html')
 
 # Start the Flask app
 if __name__ == '__main__':

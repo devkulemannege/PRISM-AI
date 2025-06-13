@@ -6,8 +6,6 @@
 </head>
 
 <body>
-    {% extends "base.html" %}
-    {% block content %}
     <h2>Register Your Business</h2>
     <form method="POST">
         <input type="text" name="name" placeholder="Business Name" required><br>
@@ -17,6 +15,5 @@
         <button type="submit">Register</button>
     </form>
     <p style="text-align:center;">Already have an account? <a href="{{ url_for('login') }}">Login here</a></p>
-    {% endblock %}
 </body>
 </html>
