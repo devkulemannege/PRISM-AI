@@ -7,6 +7,9 @@ python-dotenv
 # Database
 mysql-connector-python
 
+#MCP model context protocols
+fastmcp
+
 # AI/LLM and LangChain
 langchain
 langchain-groq
@@ -17,6 +20,9 @@ faiss-cpu
 
 # Embeddings
 transformers
+
+#`Functionality
+ratelimit
 
 # Data
 pandas

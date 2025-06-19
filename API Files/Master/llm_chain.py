@@ -6,14 +6,18 @@ from langchain_core.runnables.history import RunnableWithMessageHistory
 from connect_db import get_db_connection
 import os
 from dotenv import load_dotenv
+import faiss
+import pickle
+from sentence_transformers import SentenceTransformer
 
 # Load environment variables
 load_dotenv(os.path.abspath(os.path.join(os.path.dirname(__file__), "credentials.env")))
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 
+
 # Store ChatMessageHistory instances for each session
 session_histories = {}
-
+llm = ChatGroq(api_key=GROQ_API_KEY, model="llama3-8b-8192")
 def initialize_llm_chain(customer_id, db_sender,campaign_id):
     llm = ChatGroq(api_key=GROQ_API_KEY, model="llama3-8b-8192")
 
@@ -131,10 +135,6 @@ def initialize_llm_chain(customer_id, db_sender,campaign_id):
     # Return the runnable and context variables (add all campaign fields)
     return runnable, customer_name, campaign_name, offer, main_benefits, product_type, target_audience, target_problem, unique_solution, reason_why_needed, social_proof, price, urgency, cta
 
-import faiss
-import pickle
-from sentence_transformers import SentenceTransformer
-
 def fetch_campaign_by_name(campaign_name, faiss_index_path="campaign_vector.index", meta_path="campaign_vector_meta.pkl"):
     # Load FAISS index and metadata
     faiss_index = faiss.read_index(faiss_index_path)
@@ -170,3 +170,7 @@ def call_llm_with_chain(runnable, user_input, customer_name, campaign_name, sess
     except Exception as e:
         print(f"Error in call_llm_with_chain: {e}")
         raise
+
+
+
+

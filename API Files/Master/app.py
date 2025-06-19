@@ -388,7 +388,13 @@ def agent():
         return redirect(url_for('login'))
     return render_template('agent.html')
 
+import ratelimit
+
+@ratelimit.sleep_and_retry
+@ratelimit.limits(calls=60, period=60)
+
 def send_whatsapp_message(phone, msg):
+
     """Send a free-form message to a WhatsApp number."""
     if not isinstance(msg, str):
         raise ValueError(f"Expected string for msg, got {type(msg)}: {msg}")
