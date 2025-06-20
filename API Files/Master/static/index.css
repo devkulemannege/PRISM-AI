@@ -1,0 +1,234 @@
+/* PRISM AI Home Page Styles - Inspired by provided UI reference */
+:root {
+  --yellow: #FADC07;
+  --white: #FFFFFF;
+  --black: #000000;
+}
+
+body {
+  font-family: 'Poppins', sans-serif;
+  background: var(--white);
+  color: var(--black);
+  margin: 0;
+  padding: 0;
+}
+
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px 60px 16px 60px;
+  background: var(--white);
+  box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+}
+.logo {
+  font-family: 'Necosmic', sans-serif;
+  font-size: 2.2rem;
+  color: var(--yellow);
+  letter-spacing: 2px;
+}
+.navbar nav a {
+  color: var(--black);
+  text-decoration: none !important;
+  margin: 0 18px;
+  font-weight: 600;
+  font-size: 1.08rem;
+  transition: color 0.2s;
+}
+.navbar nav a.login-btn {
+  background: var(--yellow);
+  color: var(--black);
+  padding: 8px 24px;
+  border-radius: 8px;
+  margin-left: 18px;
+  font-weight: 700;
+}
+.navbar nav a:hover, .navbar nav a.login-btn:hover {
+  color: var(--yellow);
+  background: var(--black);
+}
+
+.hero-section {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 60px 60px 40px 60px;
+  background: linear-gradient(120deg, var(--yellow) 0%, var(--white) 100%);
+  border-radius: 0 0 40px 40px;
+  min-height: 420px;
+}
+.hero-content {
+  max-width: 540px;
+}
+.hero-content h1 {
+  color: var(--black);
+  font-size: 2.7rem;
+  font-weight: 700;
+  margin-bottom: 18px;
+}
+.hero-content p {
+  color: var(--black);
+  font-size: 1.2rem;
+  margin-bottom: 32px;
+}
+.cta-btn {
+  background: var(--yellow);
+  color: var(--black);
+  font-family: 'Poppins', sans-serif;
+  font-weight: 700;
+  font-size: 1.2rem;
+  border: none;
+  border-radius: 8px;
+  padding: 16px 40px;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+.cta-btn:hover {
+  background: var(--black);
+  color: var(--yellow);
+}
+.hero-image img {
+  width: 420px;
+  max-width: 40vw;
+  border-radius: 32px;
+  box-shadow: 0 8px 32px var(--black);
+}
+
+.popular-section {
+  padding: 48px 0 0 0;
+  text-align: center;
+}
+.popular-section h2 {
+  color: var(--black);
+  font-size: 1.7rem;
+  font-weight: 700;
+  margin-bottom: 32px;
+}
+.popular-cards {
+  display: flex;
+  justify-content: center;
+  gap: 32px;
+  margin-bottom: 32px;
+}
+.popular-card {
+  background: var(--white);
+  border-radius: 18px;
+  box-shadow: 0 4px 16px var(--black);
+  padding: 18px 12px 12px 12px;
+  width: 200px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.popular-card img {
+  width: 100%;
+  height: 110px;
+  object-fit: cover;
+  border-radius: 12px;
+  margin-bottom: 10px;
+}
+.card-title {
+  font-weight: 600;
+  color: var(--black);
+  font-size: 1.08rem;
+}
+
+.journey-section {
+  padding: 48px 0 0 0;
+  text-align: center;
+}
+.journey-section h2 {
+  color: var(--black);
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 32px;
+}
+.journey-steps {
+  display: flex;
+  justify-content: center;
+  gap: 32px;
+  margin-bottom: 32px;
+}
+.journey-step {
+  background: var(--white);
+  border-radius: 18px;
+  box-shadow: 0 4px 16px var(--black);
+  padding: 32px 24px;
+  width: 180px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.step-icon {
+  background: var(--yellow);
+  color: var(--black);
+  font-size: 1.5rem;
+  font-weight: 700;
+  border-radius: 50%;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+.step-title {
+  font-weight: 600;
+  color: var(--black);
+  font-size: 1.08rem;
+}
+
+.promo-section {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 48px;
+  padding: 48px 0;
+  background: var(--white);
+}
+.promo-image img {
+  width: 260px;
+  max-width: 30vw;
+  border-radius: 18px;
+  box-shadow: 0 4px 16px var(--black);
+}
+.promo-content {
+  max-width: 420px;
+}
+.promo-content h2 {
+  color: var(--black);
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 18px;
+}
+.promo-content p {
+  color: var(--black);
+  font-size: 1.08rem;
+  margin-bottom: 24px;
+}
+
+footer {
+  background: var(--black);
+  color: var(--white);
+  text-align: center;
+  padding: 24px 0;
+  font-family: 'Poppins', sans-serif;
+  font-size: 1rem;
+  border-radius: 0 0 18px 18px;
+  margin-top: 32px;
+}
+
+@media (max-width: 900px) {
+  .navbar, .hero-section, .promo-section {
+    flex-direction: column;
+    padding: 24px 10vw;
+  }
+  .hero-image img, .promo-image img {
+    width: 90vw;
+    max-width: 90vw;
+  }
+  .popular-cards, .journey-steps {
+    flex-direction: column;
+    gap: 18px;
+  }
+}

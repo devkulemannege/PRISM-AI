@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PRISM AI - The AI WhatsApp Sales Agent</title>
+    <link rel="stylesheet" href="../static/index.css">
+    <link href="https://fonts.googleapis.com/css?family=Poppins:400,600,700&display=swap" rel="stylesheet">
+    <style>
+      @font-face {
+        font-family: 'Necosmic';
+        src: local('Necosmic'), url('../static/Necosmic.woff2') format('woff2');
+        font-weight: normal;
+        font-style: normal;
+      }
+    </style>
+</head>
+<body>
+    <!-- Header/Navbar -->
+    <header class="navbar">
+        <div class="logo">PRISM AI</div>
+        <nav>
+            <a href="#">Home</a>
+            <a href="#features">Features</a>
+            <a href="#pricing">Pricing</a>
+            <a href="#contact">Contact</a>
+            <a href="/login" class="login-btn">Login</a>
+        </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="hero-content">
+            <h1>Experience The Magic Of AI Sales!</h1>
+            <p>Automate, engage, and convert leads 24/7 with PRISM AI, your WhatsApp Sales Agent.</p>
+            <a href="/login" class="cta-btn">Get Started</a>
+        </div>
+        <img id="hero-image" src="../static/Assets/Hero_Agent.png" alt="AI Sales Agent" />
+    </section>
+    <script>
+      // Parallax effect for hero image
+      const heroImg = document.getElementById('hero-image');
+      document.querySelector('.hero-section').addEventListener('mousemove', function(e) {
+        const { left, top, width, height } = this.getBoundingClientRect();
+        const x = (e.clientX - left) / width - 0.5;
+        const y = (e.clientY - top) / height - 0.5;
+        heroImg.style.transform = `translate(${x * 30}px, ${y * 30}px)`;
+        heroImg.style.transition = 'transform 0.1s';
+      });
+      document.querySelector('.hero-section').addEventListener('mouseleave', function() {
+        heroImg.style.transform = 'translate(0,0)';
+        heroImg.style.transition = 'transform 0.4s';
+      });
+    </script>
+
+    <!-- Popular Destinations / Use Cases -->
+    <section class="popular-section">
+        <h2>Popular Use Cases</h2>
+        <div class="popular-cards">
+            <div class="popular-card">
+                <img src="../static/usecase1.png" alt="Lead Generation" />
+                <div class="card-title">Lead Generation</div>
+            </div>
+            <div class="popular-card">
+                <img src="../static/usecase2.png" alt="Customer Support" />
+                <div class="card-title">Customer Support</div>
+            </div>
+            <div class="popular-card">
+                <img src="../static/usecase3.png" alt="Order Automation" />
+                <div class="card-title">Order Automation</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Journey/How It Works Section -->
+    <section class="journey-section">
+        <h2>Journey To More Sales Made Simple!</h2>
+        <div class="journey-steps">
+            <div class="journey-step">
+                <div class="step-icon">1</div>
+                <div class="step-title">Connect WhatsApp</div>
+            </div>
+            <div class="journey-step">
+                <div class="step-icon">2</div>
+                <div class="step-title">Set Up Your Agent</div>
+            </div>
+            <div class="journey-step">
+                <div class="step-icon">3</div>
+                <div class="step-title">Start Selling!</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Promo Section -->
+    <section class="promo-section">
+        <div class="promo-image">
+            <!-- Upload your promo image here -->
+            <img src="../static/promo-placeholder.png" alt="Promo" />
+        </div>
+        <div class="promo-content">
+            <h2>UNLEASH SALES GROWTH WITH PRISM AI</h2>
+            <p>Let your business work for you, even when you sleep. PRISM AI never misses a lead!</p>
+            <a href="/register" class="cta-btn">Book A Demo</a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div>© 2025 PRISM AI. All rights reserved.</div>
+    </footer>
+</body>
+</html>

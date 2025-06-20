@@ -38,10 +38,10 @@ app.secret_key = 'your_secret_key'
 # Database get_db_connection
 # (No need to redefine get_db_connection if imported)
 
-# Home redirects to login
+# Home shows index.html
 @app.route('/')
 def home():
-    return redirect(url_for('login'))
+    return render_template('index.html')
 
 # Register page
 @app.route('/register', methods=['GET', 'POST'])
@@ -592,7 +592,7 @@ def webhook():
 
                     
                     # Initialize LangChain conversation
-                    print(f"Initialized LangChain conversation for customerId={customer_id}, sender={db_sender}")
+                    print(f"Initialized LangChain conversation for customerId={customer_id}, sender={db_sender}, campaign_id={campaign_id}")
                     runnable, customer_name, campaign_name = initialize_llm_chain(customer_id, db_sender, campaign_id)
 
                     # Generate AI reply using LangChain
