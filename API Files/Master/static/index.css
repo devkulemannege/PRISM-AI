@@ -98,88 +98,135 @@ a, a:visited, a:active, a:hover {
   box-shadow: 0 8px 32px var(--black);
 }
 
+/* Popular Use Cases Section */
 .popular-section {
-  padding: 48px 0 0 0;
-  text-align: center;
+    padding: 60px 0 40px 0;
+    background: #fff;
+    text-align: center;
 }
+
 .popular-section h2 {
-  color: var(--black);
-  font-size: 1.7rem;
-  font-weight: 700;
-  margin-bottom: 32px;
+    font-size: 2rem;
+    font-family: 'Poppins', 'Necosmic', sans-serif;
+    color: #000;
+    margin-bottom: 32px;
+    font-weight: 700;
 }
+
 .popular-cards {
-  display: flex;
-  justify-content: center;
-  gap: 32px;
-  margin-bottom: 32px;
+    display: flex;
+    justify-content: center;
+    gap: 32px;
+    flex-wrap: wrap;
 }
+
 .popular-card {
-  background: var(--white);
-  border-radius: 18px;
-  box-shadow: 0 4px 16px var(--black);
-  padding: 18px 12px 12px 12px;
-  width: 200px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+    background: #fff;
+    border-radius: 18px;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.07);
+    padding: 32px 24px 24px 24px;
+    width: 210px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transition: box-shadow 0.2s, transform 0.2s;
 }
-.popular-card img {
-  width: 100%;
-  height: 110px;
-  object-fit: cover;
-  border-radius: 12px;
-  margin-bottom: 10px;
+
+.popular-card:hover {
+    box-shadow: 0 6px 32px rgba(0,0,0,0.13);
+    transform: translateY(-6px) scale(1.03);
 }
+
+.popular-icon {
+    font-size: 3.2rem;
+    margin-bottom: 18px;
+    color: #fadc07;
+    background: #fffbe5;
+    border-radius: 50%;
+    width: 72px;
+    height: 72px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
 .card-title {
-  font-weight: 600;
-  color: var(--black);
-  font-size: 1.08rem;
+    font-size: 1.13rem;
+    font-family: 'Poppins', sans-serif;
+    color: #000;
+    font-weight: 600;
+    margin-top: 6px;
 }
 
 .journey-section {
-  padding: 48px 0 0 0;
+  padding: 60px 0 40px 0;
+  background: #fff;
   text-align: center;
 }
+
 .journey-section h2 {
-  color: var(--black);
-  font-size: 1.5rem;
+  font-size: 2rem;
+  font-family: 'Poppins', 'Necosmic', sans-serif;
+  color: #000;
+  margin-bottom: 40px;
   font-weight: 700;
-  margin-bottom: 32px;
 }
-.journey-steps {
-  display: flex;
-  justify-content: center;
-  gap: 32px;
-  margin-bottom: 32px;
-}
-.journey-step {
-  background: var(--white);
-  border-radius: 18px;
-  box-shadow: 0 4px 16px var(--black);
-  padding: 32px 24px;
-  width: 180px;
+
+.journey-timeline {
   display: flex;
   flex-direction: column;
   align-items: center;
+  position: relative;
+  max-width: 350px;
+  margin: 0 auto;
 }
+
+.journey-step {
+  display: flex;
+  align-items: center;
+  position: relative;
+  z-index: 1;
+  margin-bottom: 0;
+}
+
 .step-icon {
-  background: var(--yellow);
-  color: var(--black);
-  font-size: 1.5rem;
-  font-weight: 700;
-  border-radius: 50%;
   width: 48px;
   height: 48px;
+  background: #fadc07;
+  color: #000;
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 12px;
+  font-size: 1.7rem;
+  font-family: 'Poppins', 'Necosmic', sans-serif;
+  font-weight: 700;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  margin-right: 18px;
+  margin-left: 0;
+  flex-shrink: 0;
 }
+
+.step-content {
+  text-align: left;
+}
+
 .step-title {
+  font-size: 1.15rem;
+  font-family: 'Poppins', sans-serif;
+  color: #000;
   font-weight: 600;
-  color: var(--black);
-  font-size: 1.08rem;
+  margin-bottom: 0;
+}
+
+.timeline-line {
+  width: 4px;
+  height: 48px;
+  background: #fadc07;
+  margin: 0 0 0 22px;
+  z-index: 0;
+  border-radius: 2px;
 }
 
 .promo-section {
@@ -293,6 +340,72 @@ footer {
 
 .what-is-info .cta-btn:hover {
     background: #ffe96a;
+}
+
+/* Full_Name Marquee Section */
+.full-name-marquee {
+    width: 100%;
+    background: #fff;
+    overflow: hidden;
+    padding: 0;
+    margin: 0 0 40px 0;
+}
+
+.full-name-marquee .marquee {
+    width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    box-sizing: border-box;
+}
+
+.full-name-marquee .marquee span.necosmic-yellow {
+    display: inline-block;
+    font-family: 'Necosmic', 'Poppins', sans-serif;
+    font-size: 2.5rem;
+    color: #fadc07;
+    font-weight: bold;
+    padding: 24px 0;
+    animation: marquee 16s linear infinite;
+    letter-spacing: 2px;
+}
+
+.full-name-marquee .marquee-rtl {
+    width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    box-sizing: border-box;
+}
+
+.full-name-marquee .marquee-rtl span.poppins-black {
+    display: inline-block;
+    font-family: 'Poppins', sans-serif;
+    font-size: 2.2rem;
+    color: #000;
+    font-weight: bold;
+    padding: 18px 0 24px 0;
+    animation: marquee-rtl 16s linear infinite;
+    letter-spacing: 2px;
+}
+
+@keyframes marquee {
+    0%   { transform: translateX(100%); }
+    100% { transform: translateX(-100%); }
+}
+
+@keyframes marquee-rtl {
+    0%   { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+
+@media (max-width: 600px) {
+    .full-name-marquee .marquee span.necosmic-yellow {
+        font-size: 1.3rem;
+        padding: 14px 0;
+    }
+    .full-name-marquee .marquee-rtl span.poppins-black {
+        font-size: 1.1rem;
+        padding: 10px 0;
+    }
 }
 
 @media (max-width: 900px) {
