@@ -18,13 +18,14 @@ GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 # Store ChatMessageHistory instances for each session
 session_histories = {}
 llm = ChatGroq(api_key=GROQ_API_KEY, model="llama3-8b-8192")
-def initialize_llm_chain(customer_id, db_sender,campaign_id):
+def initialize_llm_chain(customer_id, db_sender, campaign_id):
     llm = ChatGroq(api_key=GROQ_API_KEY, model="llama3-8b-8192")
 
     # Fetch customer and campaign details
     connection, cursor = get_db_connection()
     customer_name = "New Customer"
     campaign_name = "General Campaign"
+    db_prompt = ""  # Ensure db_prompt is always defined
     campaign_prompt = """
         You are a friendly and concise WhatsApp bot and YOUR PRISM-AI whatsapp agent. Respond in a helpful and conversational tone as a real sales agent, keeping replies under 100 words.
         Customer Name: {customer_name}
@@ -132,8 +133,11 @@ def initialize_llm_chain(customer_id, db_sender,campaign_id):
         history_messages_key="history"
     )
 
-    # Return the runnable and context variables (add all campaign fields)
-    return runnable, customer_name, campaign_name, offer, main_benefits, product_type, target_audience, target_problem, unique_solution, reason_why_needed, social_proof, price, urgency, cta
+    # Return all required values for the prompt
+    return (
+        runnable, customer_name, campaign_name, offer, main_benefits, product_type, target_audience, target_problem,
+        unique_solution, reason_why_needed, social_proof, price, urgency, cta, db_prompt, history_data
+    )
 
 def fetch_campaign_by_name(campaign_name, faiss_index_path="campaign_vector.index", meta_path="campaign_vector_meta.pkl"):
     # Load FAISS index and metadata
@@ -151,14 +155,29 @@ def fetch_campaign_by_name(campaign_name, faiss_index_path="campaign_vector.inde
     best_campaign = campaign_meta[best_idx]
     return best_campaign
 
-def call_llm_with_chain(runnable, user_input, customer_name, campaign_name, session_id=None):
+def call_llm_with_chain(runnable, user_input, customer_name, campaign_name, session_id=None,
+                        offer='', main_benefits='', product_type='', target_audience='', target_problem='',
+                        unique_solution='', reason_why_needed='', social_proof='', price='', urgency='', cta='', db_prompt='', history=None):
     try:
         # Use session_id for uniqueness
         response = runnable.invoke(
             {
                 "input": user_input,
                 "customer_name": customer_name,
-                "campaign_name": campaign_name
+                "campaign_name": campaign_name,
+                "offer": offer,
+                "main_benefits": main_benefits,
+                "product_type": product_type,
+                "target_audience": target_audience,
+                "target_problem": target_problem,
+                "unique_solution": unique_solution,
+                "reason_why_needed": reason_why_needed,
+                "social_proof": social_proof,
+                "price": price,
+                "urgency": urgency,
+                "cta": cta,
+                "db_prompt": db_prompt,
+                "history": history or []
             },
             {"configurable": {"session_id": str(session_id)}}
         )

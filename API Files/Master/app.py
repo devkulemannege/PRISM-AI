@@ -587,16 +587,24 @@ def webhook():
                     from faiss_store import find_relevant_campaign
                     print(f"text: {text}")
                     campaign_id = find_relevant_campaign(text, "Master/campaign_vector.index", "Master/campaign_vector_meta.pkl") if campaign_id else None
-                    print("Most relevant campaign found:")
-                    print(campaign_id)
+                    print(f"Most relevant campaign found: {campaign_id}")
+                    
 
                     
                     # Initialize LangChain conversation
                     print(f"Initialized LangChain conversation for customerId={customer_id}, sender={db_sender}, campaign_id={campaign_id}")
-                    runnable, customer_name, campaign_name = initialize_llm_chain(customer_id, db_sender, campaign_id)
+                    (
+                        runnable, customer_name, campaign_name, offer, main_benefits, product_type, target_audience, target_problem,
+                        unique_solution, reason_why_needed, social_proof, price, urgency, cta, db_prompt, history_data
+                    ) = initialize_llm_chain(customer_id, db_sender, campaign_id)
 
                     # Generate AI reply using LangChain
-                    ai_reply = call_llm_with_chain(runnable, text, customer_name, campaign_name, session_id=customer_id)
+                    ai_reply = call_llm_with_chain(
+                        runnable, text, customer_name, campaign_name, session_id=customer_id,
+                        offer=offer, main_benefits=main_benefits, product_type=product_type, target_audience=target_audience,
+                        target_problem=target_problem, unique_solution=unique_solution, reason_why_needed=reason_why_needed,
+                        social_proof=social_proof, price=price, urgency=urgency, cta=cta, db_prompt=db_prompt, history=history_data
+                    )
                     print(f"AI reply before sending: {repr(ai_reply)}, type: {type(ai_reply)}")  # Debug the reply
                     if not isinstance(ai_reply, str):
                         raise ValueError(f"Expected string for ai_reply, got {type(ai_reply)}: {ai_reply}")

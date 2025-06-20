@@ -77,14 +77,18 @@ def find_relevant_campaign(text, faiss_index_path="Master/campaign_vector.index"
     with open(meta_path, "rb") as f:
         campaign_meta = pickle.load(f)  # List of dicts or objects
 
-    # Encode the user message
-    model = SentenceTransformer('all-mpnet-base-v2')
-    user_vec = model.encode([text])
+    # Use the global embedding model for consistency
+    user_vec = EMBEDDING_MODEL.encode([text])
     if user_vec.ndim == 1:
         user_vec = np.expand_dims(user_vec, axis=0)  # Ensure user_vec is 2D
 
     # Search for the most similar campaign
     D, I = faiss_index.search(user_vec, k=1)
     best_idx = I[0][0]
-    # Return only the campaign_id
-    return campaign_meta[best_idx]['campaign_id'] if best_idx < len(campaign_meta) else None
+    best_dist = D[0][0]
+    print(f"Best campaign index: {best_idx}, distance: {best_dist}")
+    # Set a reasonable threshold for L2 distance (tune as needed)
+    threshold = 4.0
+    if best_idx < len(campaign_meta) and best_dist < threshold:
+        return campaign_meta[best_idx]['campaign_id']
+    return None
