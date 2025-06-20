@@ -13,6 +13,10 @@ body {
   padding: 0;
 }
 
+a, a:visited, a:active, a:hover {
+  text-decoration: none !important;
+}
+
 .navbar {
   display: flex;
   justify-content: space-between;
@@ -53,7 +57,7 @@ body {
   align-items: center;
   justify-content: space-between;
   padding: 60px 60px 40px 60px;
-  background: linear-gradient(120deg, var(--yellow) 0%, var(--white) 100%);
+  background: var(--yellow);
   border-radius: 0 0 40px 40px;
   min-height: 420px;
 }
@@ -72,7 +76,7 @@ body {
   margin-bottom: 32px;
 }
 .cta-btn {
-  background: var(--yellow);
+  background: var(--white);
   color: var(--black);
   font-family: 'Poppins', sans-serif;
   font-weight: 700;

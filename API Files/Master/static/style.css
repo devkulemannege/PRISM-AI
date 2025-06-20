@@ -108,12 +108,8 @@ a.button-link:hover {
   flex-wrap: wrap;
 }
 
-a {
-  color: var(--yellow);
+a, a:visited, a:active, a:hover {
   text-decoration: none !important;
-}
-a:hover {
-  color: var(--black);
 }
 
 .campaign-table {
