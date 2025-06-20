@@ -222,6 +222,79 @@ footer {
   margin-top: 32px;
 }
 
+/* What is PRISM AI Section */
+.what-is-section {
+    background: #fff;
+    padding: 60px 0 60px 0;
+    display: flex;
+    justify-content: center;
+}
+
+.what-is-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.2fr;
+    gap: 48px;
+    align-items: center;
+    max-width: 1100px;
+    margin: 0 auto;
+    background: #fff;
+    border-radius: 24px;
+    box-shadow: 0 2px 32px rgba(0,0,0,0.06);
+    padding: 40px 32px;
+}
+
+.what-is-image img {
+    width: 160px;
+    height: 160px;
+    border-radius: 32px;
+    object-fit: cover;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+    background: #fadc07;
+    display: block;
+    margin: 0 auto;
+}
+
+.what-is-info h2 {
+    font-size: 2.3rem;
+    font-family: 'Poppins', 'Necosmic', sans-serif;
+    font-weight: 700;
+    color: #000;
+    margin-bottom: 10px;
+}
+
+.what-is-info .subtitle {
+    color: #fadc07;
+    font-size: 1.15rem;
+    font-weight: 600;
+    margin-bottom: 18px;
+    letter-spacing: 0.5px;
+}
+
+.what-is-info p {
+    color: #222;
+    font-size: 1.09rem;
+    margin-bottom: 28px;
+    line-height: 1.7;
+}
+
+.what-is-info .cta-btn {
+    background: #fadc07;
+    color: #000;
+    font-weight: 700;
+    padding: 14px 38px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-size: 1.08rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    transition: background 0.2s;
+    border: none;
+    display: inline-block;
+}
+
+.what-is-info .cta-btn:hover {
+    background: #ffe96a;
+}
+
 @media (max-width: 900px) {
   .navbar, .hero-section, .promo-section {
     flex-direction: column;
@@ -235,4 +308,26 @@ footer {
     flex-direction: column;
     gap: 18px;
   }
+  .what-is-grid {
+        grid-template-columns: 1fr;
+        padding: 24px 10px;
+        gap: 28px;
+    }
+    .what-is-image img {
+        max-width: 90vw;
+    }
+}
+
+@media (max-width: 768px) {
+    .what-is-section {
+        padding: 60px 20px;
+    }
+    
+    .features-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .what-is-section h2 {
+        font-size: 2rem;
+    }
 }

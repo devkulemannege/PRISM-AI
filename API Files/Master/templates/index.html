@@ -38,20 +38,38 @@
         <img id="hero-image" src="../static/Assets/Hero_Agent.png" alt="AI Sales Agent" />
     </section>
     <script>
-      // Parallax effect for hero image
-      const heroImg = document.getElementById('hero-image');
-      document.querySelector('.hero-section').addEventListener('mousemove', function(e) {
-        const { left, top, width, height } = this.getBoundingClientRect();
-        const x = (e.clientX - left) / width - 0.5;
-        const y = (e.clientY - top) / height - 0.5;
-        heroImg.style.transform = `translate(${x * 30}px, ${y * 30}px)`;
-        heroImg.style.transition = 'transform 0.1s';
-      });
-      document.querySelector('.hero-section').addEventListener('mouseleave', function() {
-        heroImg.style.transform = 'translate(0,0)';
-        heroImg.style.transition = 'transform 0.4s';
-      });
+        // Parallax effect for hero image
+        const heroImg = document.getElementById('hero-image');
+        document.querySelector('.hero-section').addEventListener('mousemove', function(e) {
+            const { left, top, width, height } = this.getBoundingClientRect();
+            const x = (e.clientX - left) / width - 0.5;
+            const y = (e.clientY - top) / height - 0.5;
+            heroImg.style.transform = `translate(${x * 30}px, ${y * 30}px)`;
+            heroImg.style.transition = 'transform 0.1s';
+        });
+        document.querySelector('.hero-section').addEventListener('mouseleave', function() {
+            heroImg.style.transform = 'translate(0,0)';
+            heroImg.style.transition = 'transform 0.4s';
+        });
     </script>
+
+    <!-- What is PRISM AI Section -->
+    <section class="what-is-section">
+    <div class="what-is-grid">
+        <div class="what-is-image">
+            <img src="../static/Assets/Whats_Is_PRISM_AI.jpg" alt="What is PRISM AI" />
+        </div>
+        <div class="what-is-info">
+            <h2>What is PRISM AI?</h2>
+            <p class="subtitle">Your 24/7 WhatsApp Sales Assistant</p>
+            <p>
+                PRISM AI is an intelligent WhatsApp sales agent that automates customer engagement, lead qualification, and sales conversion for your business. <br>
+                With real-time responses, seamless WhatsApp integration, and actionable analytics, PRISM AI helps you grow your business and never miss a sales opportunity.
+            </p>
+            <a href="/register" class="cta-btn">Get Started for Free</a>
+        </div>
+    </div>
+</section>
 
     <!-- Popular Destinations / Use Cases -->
     <section class="popular-section">
