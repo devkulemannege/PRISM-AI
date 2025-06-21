@@ -63,7 +63,7 @@ input, select#product_type {
   box-shadow: 0 1px 2px var(--black);
   transition: border 0.3s, box-shadow 0.2s;
   width: 90%;
-  height: 36px;
+  height: 48px;
   margin: 12px auto 0;
   display: block;
 }
@@ -265,6 +265,7 @@ a, a:visited, a:active, a:hover {
   font-size: 1rem;
   box-shadow: 0 1px 2px var(--black);
   transition: border 0.3s, box-shadow 0.2s;
+  height: 48px;
 }
 .auth-form input:focus {
   border-color: var(--yellow);
@@ -273,6 +274,7 @@ a, a:visited, a:active, a:hover {
 .auth-form button {
   width: 100%;
   margin: 0;
+  height: 48px;
 }
 .auth-form p {
   color: var(--black);
@@ -350,6 +352,7 @@ a, a:visited, a:active, a:hover {
   font-size: 1rem;
   box-shadow: 0 1px 2px var(--black);
   transition: border 0.3s, box-shadow 0.2s;
+  height: 48px;
 }
 .auth-fullscreen .auth-form input:focus {
   border-color: var(--yellow);
@@ -358,6 +361,7 @@ a, a:visited, a:active, a:hover {
 .auth-fullscreen .auth-form button {
   width: 100%;
   margin: 0;
+  height: 48px;
 }
 .auth-fullscreen .auth-form p {
   color: var(--black);
@@ -441,14 +445,22 @@ a, a:visited, a:active, a:hover {
   align-items: stretch;
 }
 .fb-login-form input {
-  padding: 14px 14px;
+  padding: 13px 18px; /* Match button vertical size */
   border: 1.5px solid #dddfe2;
   border-radius: 6px;
   background: #f5f6fa;
   color: #1c1e21;
-  font-size: 1.08rem;
+  font-size: 1.15rem;
   margin-bottom: 0;
   transition: border 0.2s;
+  width: 90%;
+  min-width: 220px;
+  max-width: 380px;
+  margin-left: auto;
+  margin-right: auto;
+  box-sizing: border-box;
+  display: block;
+  height: 48px; /* Match button height for perfect alignment */
 }
 .fb-login-form input:focus {
   border-color: #1877f2;
@@ -509,6 +521,15 @@ a, a:visited, a:active, a:hover {
   max-width: 380px;
   margin-left: auto;
   margin-right: auto;
+  display: block;
+  height: 48px;
+  line-height: normal;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-top: 0;
+  padding-bottom: 0;
 }
 
 @media (max-width: 1100px) {
