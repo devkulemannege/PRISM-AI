@@ -9,7 +9,7 @@
     </div>
     {% if campaigns %}
     <div style="overflow-x:auto;">
-    <table class="campaign-table">
+    <table class="campaign-table modern-campaign-table flat-campaign-table">
         <thead>
             <tr>
                 <th>Product Name</th>
@@ -31,12 +31,18 @@
             <tr>
                 <td>{{ c['campaignName'] }}</td>
                 <td>{{ c.get('ProductType', c.get('ProductName', '')) }}</td>
-                <td>{{ c['targetProblem'] }}</td>
-                <td>{{ c['targetAudience'] }}</td>
-                <td>{{ c['uniqueSolution'] }}</td>
-                <td>{{ c['whyNeeded'] }}</td>
-                <td>{{ c['mainBenefits'] }}</td>
-                <td>{{ c['socialProof'] }}</td>
+                {% for key in ['targetProblem','targetAudience','uniqueSolution','whyNeeded','mainBenefits','socialProof'] %}
+                <td>
+                  {% set text = c[key] %}
+                  {% if text|length > 60 %}
+                    <span class="short-text">{{ text[:60] }}...</span>
+                    <span class="full-text" style="display:none;">{{ text }}</span>
+                    <a href="#" class="read-more" onclick="toggleText(this); return false;">Read more</a>
+                  {% else %}
+                    {{ text }}
+                  {% endif %}
+                </td>
+                {% endfor %}
                 <td>{{ c['price'] }}</td>
                 <td>{{ c['offer'] }}</td>
                 <td>{{ c['urgency'] }}</td>
@@ -46,6 +52,89 @@
         </tbody>
     </table>
     </div>
+    <script>
+      function toggleText(link) {
+        var td = link.parentElement;
+        var shortText = td.querySelector('.short-text');
+        var fullText = td.querySelector('.full-text');
+        if (shortText.style.display !== 'none') {
+          shortText.style.display = 'none';
+          fullText.style.display = 'inline';
+          link.textContent = 'Show less';
+        } else {
+          shortText.style.display = 'inline';
+          fullText.style.display = 'none';
+          link.textContent = 'Read more';
+        }
+      }
+    </script>
+    <style>
+      .flat-campaign-table {
+        border-radius: 16px;
+        border: 1.5px solid var(--yellow);
+        box-shadow: none;
+        overflow: hidden;
+        margin: 0 auto 24px auto;
+        background: var(--white);
+      }
+      .flat-campaign-table th, .flat-campaign-table td {
+        vertical-align: middle;
+        max-width: 220px;
+        min-width: 120px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        font-size: 1.04rem;
+        padding: 16px 14px;
+        height: 56px;
+        border-bottom: 1px solid #fadc07;
+      }
+      .flat-campaign-table th {
+        background: var(--yellow);
+        color: var(--black);
+        font-weight: 700;
+        border-bottom: 2px solid #e5e500;
+        letter-spacing: 0.02em;
+        text-align: left;
+      }
+      .flat-campaign-table td {
+        background: var(--white);
+        color: var(--black);
+        font-family: 'Poppins', sans-serif;
+      }
+      .flat-campaign-table tr {
+        transition: background 0.15s;
+      }
+      .flat-campaign-table tbody tr:hover {
+        background: #fffbe7;
+      }
+      .flat-campaign-table .read-more {
+        color: var(--yellow);
+        font-size: 0.98rem;
+        margin-left: 6px;
+        text-decoration: underline;
+        cursor: pointer;
+      }
+      .flat-campaign-table .read-more:hover {
+        color: var(--black);
+      }
+      .flat-campaign-table .full-text {
+        white-space: normal;
+        word-break: break-word;
+      }
+      .flat-campaign-table td, .flat-campaign-table th {
+        border-right: 1px solid #fadc07;
+      }
+      .flat-campaign-table td:last-child, .flat-campaign-table th:last-child {
+        border-right: none;
+      }
+      .flat-campaign-table thead tr {
+        border-radius: 16px 16px 0 0;
+      }
+      .flat-campaign-table tbody tr:last-child td {
+        border-bottom: none;
+      }
+    </style>
     {% else %}
     <p>No campaigns found.</p>
     {% endif %}

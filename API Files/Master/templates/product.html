@@ -2,24 +2,67 @@
 {% extends "base.html" %}
 {% block content %}
 <h2>Sell a New Product</h2>
-<form action="/generate" method="POST">
-    <input type="text" id="product_name" name="product_name" placeholder="Product Name" required><br><br>
-    <input type="text" id="target_problem" name="target_problem" placeholder="Target Problem" required><br><br>
-    <input type="text" id="target_audience" name="target_audience" placeholder="Target Audience" required><br><br>
-    <input type="text" id="unique_solution" name="unique_solution" placeholder="Unique Solution" required><br><br>
-    <input type="text" id="reason_why_needed" name="reason_why_needed" placeholder="Reason Why It’s Needed Now" required><br><br>
-    <input type="text" id="main_benefits" name="main_benefits" placeholder="Main Benefits" required><br><br>
-    <input type="text" id="social_proof" name="social_proof" placeholder="Social Proof (e.g., review)" required><br><br>
-    <input type="text" id="price" name="price" placeholder="Normal Price" required><br><br>
-    <input type="text" id="offer" name="offer" placeholder="Special Offer" required><br><br>
-    <input type="text" id="urgency" name="urgency" placeholder="Urgency Message" required><br><br>
-    <input type="text" id="cta" name="cta" placeholder="Call to Action (CTA)" required><br><br>
-    <select id="product_type" name="product_type" required>
+<div class="product-form-wrapper" style="display:flex; justify-content:center; align-items:center; width:100%; min-height:60vh;">
+  <form action="/generate" method="POST" class="product-form-flat" style="width:100%; max-width:410px; background:var(--white); border-radius:14px; padding:32px 28px 28px 28px; box-shadow:none; display:flex; flex-direction:column; gap:12px; align-items:stretch;">
+    <input type="text" id="product_name" name="product_name" placeholder="Product Name" required>
+    <input type="text" id="target_problem" name="target_problem" placeholder="Target Problem" required>
+    <input type="text" id="target_audience" name="target_audience" placeholder="Target Audience" required>
+    <input type="text" id="unique_solution" name="unique_solution" placeholder="Unique Solution" required>
+    <input type="text" id="reason_why_needed" name="reason_why_needed" placeholder="Reason Why It’s Needed Now" required>
+    <input type="text" id="main_benefits" name="main_benefits" placeholder="Main Benefits" required>
+    <input type="text" id="social_proof" name="social_proof" placeholder="Social Proof (e.g., review)" required>
+    <input type="text" id="price" name="price" placeholder="Normal Price" required>
+    <input type="text" id="offer" name="offer" placeholder="Special Offer" required>
+    <input type="text" id="urgency" name="urgency" placeholder="Urgency Message" required>
+    <input type="text" id="cta" name="cta" placeholder="Call to Action (CTA)" required>
+    <select id="product_type" name="product_type" required style="margin-top:2px;">
         <option value="" disabled selected>Select Product Type</option>
         <option value="Recurrent Selling Product">Recurrent Selling Product</option>
         <option value="One time Only Selling Product">One time Only Selling Product</option>
-    </select><br><br>
-
-    <button type="submit">Generate Prompt</button>
-</form>
+    </select>
+    <button type="submit" class="wide-btn" style="margin-top:10px;">Generate Prompt</button>
+  </form>
+</div>
+<style>
+  .product-form-flat input,
+  .product-form-flat select {
+    width: 100%;
+    margin: 0;
+    height: 44px;
+    font-size: 1rem;
+    border-radius: 8px;
+    border: 1.5px solid var(--black);
+    background: var(--white);
+    color: var(--black);
+    font-family: 'Poppins', sans-serif;
+    box-shadow: none;
+    padding: 10px 14px;
+    transition: border 0.2s;
+  }
+  .product-form-flat input:focus,
+  .product-form-flat select:focus {
+    border-color: var(--yellow);
+    outline: none;
+  }
+  .product-form-flat button {
+    width: 100%;
+    height: 48px;
+    font-size: 1.13rem;
+    border-radius: 8px;
+    font-weight: 700;
+    background: var(--yellow);
+    color: var(--black);
+    border: none;
+    margin: 0;
+    box-shadow: none;
+    transition: background 0.2s, color 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .product-form-flat button:hover {
+    background: var(--black);
+    color: var(--yellow);
+  }
+</style>
 {% endblock %}
