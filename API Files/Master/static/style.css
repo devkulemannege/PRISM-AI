@@ -18,13 +18,8 @@ body {
   max-width: 1200px;
   margin: 64px auto 0;
   border-radius: 18px;
-  box-shadow: 0 8px 32px var(--black);
   padding: 48px 36px;
   text-align: center;
-}
-
-.container:hover {
-  box-shadow: 0 12px 40px var(--black);
 }
 
 h1, h2 {
@@ -60,8 +55,7 @@ input, select#product_type {
   background: var(--white);
   color: var(--black);
   font-size: 1rem;
-  box-shadow: 0 1px 2px var(--black);
-  transition: border 0.3s, box-shadow 0.2s;
+  transition: border 0.3s;
   width: 90%;
   height: 48px;
   margin: 12px auto 0;
@@ -70,13 +64,12 @@ input, select#product_type {
 
 input:focus, select#product_type:focus {
   border-color: var(--yellow);
-  box-shadow: 0 0 0 2px var(--yellow);
 }
 
 button,
 .button-link,
 a.button-link {
-  background: var(--white); /* Match .cta-btn in index.css */
+  background: var(--yellow); /* Match .cta-btn in index.css */
   color: var(--black);
   font-family: 'Poppins', sans-serif;
   font-weight: 700;
@@ -85,7 +78,6 @@ a.button-link {
   border-radius: 8px;
   padding: 16px 40px;
   cursor: pointer;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
   text-decoration: none !important;
   margin: 0 auto;
   display: block;
@@ -130,7 +122,6 @@ a, a:visited, a:active, a:hover {
   border-collapse: separate;
   border-spacing: 0;
   background: var(--white);
-  box-shadow: 0 4px 24px var(--black);
   border-radius: 12px;
   overflow: hidden;
   margin-top: 32px;
@@ -160,7 +151,6 @@ a, a:visited, a:active, a:hover {
   padding: 18px 24px;
   border-radius: 8px;
   color: var(--black);
-  box-shadow: 0 2px 8px var(--black);
   font-size: 1.08rem;
   margin-bottom: 32px;
 }
@@ -172,7 +162,6 @@ a, a:visited, a:active, a:hover {
   align-items: center;
   padding: 24px 60px 16px 60px;
   background: var(--white);
-  box-shadow: 0 2px 12px rgba(0,0,0,0.04);
 }
 .logo {
   font-family: 'Necosmic', sans-serif;
@@ -212,7 +201,6 @@ a, a:visited, a:active, a:hover {
   min-height: 80vh;
   background: var(--white);
   border-radius: 18px;
-  box-shadow: 0 8px 32px var(--black);
   overflow: hidden;
   margin: 48px auto;
   max-width: 900px;
@@ -263,13 +251,11 @@ a, a:visited, a:active, a:hover {
   background: var(--white);
   color: var(--black);
   font-size: 1rem;
-  box-shadow: 0 1px 2px var(--black);
-  transition: border 0.3s, box-shadow 0.2s;
+  transition: border 0.3s;
   height: 48px;
 }
 .auth-form input:focus {
   border-color: var(--yellow);
-  box-shadow: 0 0 0 2px var(--yellow);
 }
 .auth-form button {
   width: 100%;
@@ -326,7 +312,6 @@ a, a:visited, a:active, a:hover {
   max-width: 480px;
   width: 100%;
   box-sizing: border-box;
-  box-shadow: none;
 }
 .auth-fullscreen .auth-form h2 {
   color: var(--black);
@@ -350,13 +335,11 @@ a, a:visited, a:active, a:hover {
   background: var(--white);
   color: var(--black);
   font-size: 1rem;
-  box-shadow: 0 1px 2px var(--black);
-  transition: border 0.3s, box-shadow 0.2s;
+  transition: border 0.3s;
   height: 48px;
 }
 .auth-fullscreen .auth-form input:focus {
   border-color: var(--yellow);
-  box-shadow: 0 0 0 2px var(--yellow);
 }
 .auth-fullscreen .auth-form button {
   width: 100%;
@@ -434,7 +417,6 @@ a, a:visited, a:active, a:hover {
 .fb-login-form {
   background: #fff;
   border-radius: 8px;
-  box-shadow: 0 4px 24px rgba(0,0,0,0.13);
   padding: 32px 28px 24px 28px;
   min-width: 340px;
   max-width: 380px;
