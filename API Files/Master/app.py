@@ -21,6 +21,7 @@ import sys
 import threading
 from flask import Flask, request
 from llm_chain import initialize_llm_chain, call_llm_with_chain
+from cluster_visualization import fetch_all_chatlog_msgs, cluster_and_reduce, save_cluster_plot
 
 # Load environment variables
 load_dotenv(dotenv_path=os.path.abspath(os.path.join(os.path.dirname(__file__), "credentials.env")))
@@ -410,23 +411,24 @@ def leads():
 def sales():
     if 'name' not in session:
         return redirect(url_for('login'))
-    # Get businessId for the logged-in user
-    conn, cur = get_db_connection()
-    cur.execute("SELECT businessId FROM business WHERE name=%s", (session['name'],))
-    row = cur.fetchone()
-    business_id = row[0] if row else None
-    conn.close()
     img_path = None
-    if business_id:
-        df = fetch_chatlog_msgs_for_business(business_id)
-        if not df.empty:
-            static_dir = os.path.join(app.root_path, 'static')
-            if not os.path.exists(static_dir):
-                os.makedirs(static_dir)
-            img_path = os.path.join(static_dir, 'sales_clusters.png')
-            save_cluster_plot(df, img_path)
+    cluster_msg = None
+    df = fetch_all_chatlog_msgs()
+    if not df.empty:
+        static_dir = os.path.join(app.root_path, 'static')
+        if not os.path.exists(static_dir):
+            os.makedirs(static_dir)
+        img_path = os.path.join(static_dir, 'sales_clusters.png')
+        clustered_df = cluster_and_reduce(df, n_clusters=5)
+        if clustered_df is not None:
+            save_cluster_plot(clustered_df, img_path)
+        else:
+            img_path = None
+            cluster_msg = "Not enough customer messages to perform clustering."
+    else:
+        cluster_msg = "No customer messages found."
     img_url = url_for('static', filename='sales_clusters.png') if img_path and os.path.exists(img_path) else None
-    return render_template('sales.html', cluster_img=img_url)
+    return render_template('sales.html', cluster_img=img_url, cluster_msg=cluster_msg)
 
 @app.route('/agent')
 def agent():
