@@ -8,15 +8,29 @@
 <body>
     {% extends "base.html" %}
     {% block content %}
-    <h2>Register Your Business</h2>
-    <form method="POST">
-        <input type="text" name="name" placeholder="Business Name" required><br>
-        <input type="text" name="contact" placeholder="Contact Info" required><br>
-        <input type="text" name="type" placeholder="Business Type" required><br>
-        <input type="password" name="password" placeholder="Password" required><br>
-        <button type="submit">Register</button>
-    </form>
-    <p style="text-align:center;">Already have an account? <a href="{{ url_for('login') }}">Login here</a></p>
+    <style>
+      .navbar { display: none !important; }
+      body { background: #f0f2f5; }
+    </style>
+    <div class="fb-login-layout">
+      <div class="fb-login-left">
+        <div style="display:flex; flex-direction:column; align-items:flex-start;">
+          <div class="fb-logo" style="font-family: 'Necosmic', sans-serif; color: var(--yellow); text-align:left;">PRISM<span style="color: var(--yellow);"> AI</span></div>
+          <div class="fb-desc" style="font-family: 'Poppins', sans-serif; color: #1c1e21; text-align:left; margin-top:0;">PRISM AI helps you connect and share with your business customers.</div>
+        </div>
+      </div>
+      <div class="fb-login-right">
+        <form method="POST" class="fb-login-form">
+          <input type="text" name="name" placeholder="Business Name" required>
+          <input type="text" name="contact" placeholder="Contact Info" required>
+          <input type="text" name="type" placeholder="Business Type" required>
+          <input type="password" name="password" placeholder="Password" required>
+          <button type="submit" class="fb-login-btn fb-yellow-btn wide-btn">Register</button>
+          <hr>
+          <p style="font-family: 'Poppins', sans-serif; color: #1c1e21; text-align:center;">Already have an account? <a href="{{ url_for('login') }}">Login here</a></p>
+        </form>
+      </div>
+    </div>
     {% endblock %}
 </body>
 </html>
