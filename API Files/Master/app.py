@@ -375,26 +375,32 @@ def leads():
     if 'name' not in session:
         return redirect(url_for('login'))
     conn, cur = get_db_connection()
+    leads_data = []
     # Get businessId for the logged-in user
     cur.execute("SELECT businessId FROM business WHERE name=%s", (session['name'],))
-    business_id_row = cur.fetchone()
-    leads_data = []
-    if business_id_row:
-        business_id = business_id_row[0]
-        # Join chatlog and customer, filter by businessId
+    row = cur.fetchone()
+    business_id = row[0] if row else None
+    if business_id:
         cur.execute('''
-            SELECT c.fName, ch.customer_msg, ch.LLM_msg, ch.campaignId
+            SELECT ch.msgId, ch.customerId, ch.businessId, ch.LLM_msg, ch.customer_msg, ch.timestamp, ch.CampaignId, cu.fName, ca.campaignName
             FROM chatlog ch
-            JOIN customer c ON ch.customerId = c.customerId
-            WHERE c.campaignId IN (SELECT campaignId FROM campaign WHERE businessId = %s)
-            ORDER BY ch.chatlogId DESC
+            JOIN campaign ca ON ch.CampaignId = ca.campaignId
+            LEFT JOIN customer cu ON ch.customerId = cu.customerId
+            WHERE ca.businessId = %s
+            ORDER BY ch.msgId DESC
         ''', (business_id,))
-        for row in cur.fetchall():
+        rows = cur.fetchall()
+        for row in rows:
             leads_data.append({
-                'customer_name': row[0],
-                'customer_msg': row[1],
-                'llm_msg': row[2],
-                'campaign_id': row[3]
+                'msg_id': row[0],
+                'customer_id': row[1],
+                'business_id': row[2],
+                'llm_msg': row[3],
+                'customer_msg': row[4],
+                'timestamp': row[5],
+                'campaign_id': row[6],
+                'customer_name': row[7] or 'Unknown',
+                'campaign_name': row[8] or 'Unknown'
             })
     cur.close()
     conn.close()
@@ -404,7 +410,23 @@ def leads():
 def sales():
     if 'name' not in session:
         return redirect(url_for('login'))
-    return render_template('sales.html')
+    # Get businessId for the logged-in user
+    conn, cur = get_db_connection()
+    cur.execute("SELECT businessId FROM business WHERE name=%s", (session['name'],))
+    row = cur.fetchone()
+    business_id = row[0] if row else None
+    conn.close()
+    img_path = None
+    if business_id:
+        df = fetch_chatlog_msgs_for_business(business_id)
+        if not df.empty:
+            static_dir = os.path.join(app.root_path, 'static')
+            if not os.path.exists(static_dir):
+                os.makedirs(static_dir)
+            img_path = os.path.join(static_dir, 'sales_clusters.png')
+            save_cluster_plot(df, img_path)
+    img_url = url_for('static', filename='sales_clusters.png') if img_path and os.path.exists(img_path) else None
+    return render_template('sales.html', cluster_img=img_url)
 
 @app.route('/agent')
 def agent():

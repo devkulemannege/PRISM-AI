@@ -87,60 +87,79 @@
         border: 1px solid #f5f5f5;
         margin-bottom: 32px;
     }
-    .dashboard-table table {
-        width: 100%;
-        border-collapse: collapse;
-        font-size: 1rem;
+    .flat-leads-table {
+        border-radius: 16px;
+        border: 1.5px solid var(--yellow, #ffce3a);
+        box-shadow: none;
+        overflow: hidden;
+        margin: 0 auto 24px auto;
+        background: var(--white, #fff);
     }
-    .dashboard-table th, .dashboard-table td {
-        padding: 12px 10px;
-        text-align: left;
-        border-bottom: 1px solid #f0f0f0;
-        vertical-align: top;
-    }
-    .dashboard-table th {
-        color: #222;
-        font-weight: 600;
-        background: #fffbe6;
-    }
-    .dashboard-table td {
-        color: #444;
+    .flat-leads-table th, .flat-leads-table td {
+        vertical-align: middle;
         max-width: 220px;
+        min-width: 80px;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
+        font-size: 1.04rem;
+        padding: 12px 10px;
+        height: 48px;
+        border-bottom: 1px solid #fadc07;
     }
-    .dashboard-table tr:last-child td {
+    .flat-leads-table th {
+        background: var(--yellow, #ffce3a);
+        color: var(--black, #222);
+        font-weight: 700;
+        border-bottom: 2px solid #e5e500;
+        letter-spacing: 0.02em;
+        text-align: left;
+    }
+    .flat-leads-table td {
+        background: var(--white, #fff);
+        color: var(--black, #222);
+        font-family: 'Poppins', sans-serif;
+    }
+    .flat-leads-table tr {
+        transition: background 0.15s;
+    }
+    .flat-leads-table tbody tr:hover {
+        background: #fffbe7;
+    }
+    .flat-leads-table .read-more {
+        color: var(--yellow, #ffce3a);
+        font-size: 0.98rem;
+        margin-left: 6px;
+        text-decoration: underline;
+        cursor: pointer;
+    }
+    .flat-leads-table .read-more:hover {
+        color: var(--black, #222);
+    }
+    .flat-leads-table .full-text {
+        white-space: normal;
+        word-break: break-word;
+    }
+    .flat-leads-table td, .flat-leads-table th {
+        border-right: 1px solid #fadc07;
+    }
+    .flat-leads-table td:last-child, .flat-leads-table th:last-child {
+        border-right: none;
+    }
+    .flat-leads-table thead tr {
+        border-radius: 16px 16px 0 0;
+    }
+    .flat-leads-table tbody tr:last-child td {
         border-bottom: none;
     }
-    .status-pass {
-        color: #27ae60;
-        background: #eafbe7;
-        border-radius: 12px;
-        padding: 2px 12px;
-        font-size: 0.95em;
-        font-weight: 500;
-    }
-    .status-fail {
-        color: #e74c3c;
-        background: #fdeaea;
-        border-radius: 12px;
-        padding: 2px 12px;
-        font-size: 0.95em;
-        font-weight: 500;
-    }
-    .read-more {
-        color: #ffce3a;
-        cursor: pointer;
-        font-size: 0.95em;
-        margin-left: 6px;
-    }
+    .llm-msg { color: #e17055; font-weight: 500; }
+    .customer-msg { color: #222; font-weight: 500; }
 </style>
 <div class="container" style="max-width: 1100px; margin: 0 auto;">
     <div class="dashboard-header">
         <div class="dashboard-title">Leads Dashboard</div>
         <div class="dashboard-search">
-            <input type="text" id="searchInput" placeholder="Search by customer or message...">
+            <input type="text" id="searchInput" placeholder="Search by any field...">
             <span class="search-icon"><i class="fa fa-search"></i></span>
         </div>
     </div>
@@ -166,42 +185,43 @@
             <span class="value">{{ leads_data|map(attribute='campaign_id')|unique|list|length }}</span>
         </div>
     </div>
-    <div class="dashboard-table">
-        <table id="leadsTable">
+    {% if leads_data %}
+    <div class="dashboard-table" style="overflow-x:auto;">
+        <table id="leadsTable" class="flat-leads-table">
             <thead>
                 <tr>
+                    <th>Msg ID</th>
+                    <th>Campaign Name</th>
                     <th>Customer Name</th>
                     <th>Customer Message</th>
                     <th>LLM Response</th>
-                    <th>Campaign ID</th>
+                    <th>Timestamp</th>
                 </tr>
             </thead>
             <tbody>
-                {% for lead in leads_data %}
+                {% for l in leads_data %}
                 <tr>
-                    <td>{{ lead.customer_name }}</td>
-                    <td>
-                        <span class="short-text">{{ lead.customer_msg[:40] }}{% if lead.customer_msg|length > 40 %}...<span class="read-more" data-fulltext="{{ lead.customer_msg|e }}" onclick="showFull(this)">Read more</span>{% endif %}</span>
-                    </td>
-                    <td>
-                        <span class="short-text">{{ lead.llm_msg[:40] }}{% if lead.llm_msg|length > 40 %}...<span class="read-more" data-fulltext="{{ lead.llm_msg|e }}" onclick="showFull(this)">Read more</span>{% endif %}</span>
-                    </td>
-                    <td>{{ lead.campaign_id }}</td>
+                    <td>{{ l['msg_id'] }}</td>
+                    <td>{{ l['campaign_name'] }}</td>
+                    <td>{{ l['customer_name'] }}</td>
+                    <td class="customer-msg">{{ l['customer_msg'] }}</td>
+                    <td class="llm-msg">{{ l['llm_msg'] }}</td>
+                    <td>{{ l['timestamp'] }}</td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
     </div>
+    {% else %}
+    <p>No leads found.</p>
+    {% endif %}
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
 <script>
-function showFull(elem) {
-    const fullText = elem.getAttribute('data-fulltext');
-    elem.parentElement.innerHTML = fullText;
-}
 // Simple search filter
 const searchInput = document.getElementById('searchInput');
 const table = document.getElementById('leadsTable');
+if (searchInput && table) {
 searchInput.addEventListener('keyup', function() {
     const filter = searchInput.value.toLowerCase();
     for (let row of table.tBodies[0].rows) {
@@ -215,5 +235,6 @@ searchInput.addEventListener('keyup', function() {
         row.style.display = match ? '' : 'none';
     }
 });
+}
 </script>
 {% endblock %}
