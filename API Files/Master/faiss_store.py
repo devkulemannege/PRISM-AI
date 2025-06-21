@@ -75,6 +75,7 @@ def find_relevant_campaign(text, faiss_index_path="Master/campaign_vector.index"
     # Load FAISS index and metadata
     faiss_index = faiss.read_index(faiss_index_path)
     with open(meta_path, "rb") as f:
+        print(f)
         campaign_meta = pickle.load(f)  # List of dicts or objects
 
     # Use the global embedding model for consistency
@@ -90,5 +91,9 @@ def find_relevant_campaign(text, faiss_index_path="Master/campaign_vector.index"
     # Set a reasonable threshold for L2 distance (tune as needed)
     threshold = 4.0
     if best_idx < len(campaign_meta) and best_dist < threshold:
+        print("Best campaign meta:", campaign_meta[best_idx]['campaign_id'])
         return campaign_meta[best_idx]['campaign_id']
-    return None
+    
+text="can i know laptopss"
+campaign_id = find_relevant_campaign(text, "Master/campaign_vector.index", "Master/campaign_vector_meta.pkl")
+print(f"Most relevant campaign found: {campaign_id}")
