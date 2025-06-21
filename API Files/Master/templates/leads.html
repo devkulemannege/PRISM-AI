@@ -1,7 +1,219 @@
 {% extends "base.html" %}
 {% block content %}
-<div class="container">
-    <h2>Leads</h2>
-    <p>This is the Leads page. Add your lead management features here.</p>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<style>
+    body, .container, .dashboard-card, .dashboard-table, .dashboard-header, .dashboard-search, .dashboard-stats, .dashboard-activities {
+        font-family: 'Poppins', 'Neco', Arial, sans-serif;
+    }
+    .dashboard-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+    }
+    .dashboard-title {
+        font-size: 2rem;
+        font-weight: 600;
+        color: #222;
+    }
+    .dashboard-search {
+        background: #fff;
+        border: 1px solid #eee;
+        border-radius: 24px;
+        padding: 8px 16px;
+        display: flex;
+        align-items: center;
+        width: 260px;
+    }
+    .dashboard-search input {
+        border: none;
+        outline: none;
+        font-size: 1rem;
+        width: 100%;
+        background: transparent;
+    }
+    .dashboard-search .search-icon {
+        color: #ffce3a;
+        font-size: 1.2rem;
+        margin-left: 8px;
+    }
+    .dashboard-cards {
+        display: flex;
+        gap: 24px;
+        margin-bottom: 32px;
+    }
+    .dashboard-card {
+        flex: 1;
+        background: #fff;
+        border-radius: 16px;
+        padding: 24px 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        border: 1px solid #f5f5f5;
+        min-width: 160px;
+    }
+    .dashboard-card .icon {
+        font-size: 2rem;
+        margin-bottom: 8px;
+    }
+    .dashboard-card .label {
+        font-size: 1rem;
+        color: #888;
+        margin-bottom: 4px;
+    }
+    .dashboard-card .value {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #222;
+    }
+    .dashboard-main {
+        display: flex;
+        gap: 32px;
+        margin-bottom: 32px;
+    }
+    .dashboard-stats, .dashboard-activities {
+        flex: 1;
+        background: #fff;
+        border-radius: 16px;
+        padding: 24px;
+        border: 1px solid #f5f5f5;
+        min-width: 220px;
+    }
+    .dashboard-table {
+        background: #fff;
+        border-radius: 16px;
+        padding: 24px;
+        border: 1px solid #f5f5f5;
+        margin-bottom: 32px;
+    }
+    .dashboard-table table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 1rem;
+    }
+    .dashboard-table th, .dashboard-table td {
+        padding: 12px 10px;
+        text-align: left;
+        border-bottom: 1px solid #f0f0f0;
+        vertical-align: top;
+    }
+    .dashboard-table th {
+        color: #222;
+        font-weight: 600;
+        background: #fffbe6;
+    }
+    .dashboard-table td {
+        color: #444;
+        max-width: 220px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .dashboard-table tr:last-child td {
+        border-bottom: none;
+    }
+    .status-pass {
+        color: #27ae60;
+        background: #eafbe7;
+        border-radius: 12px;
+        padding: 2px 12px;
+        font-size: 0.95em;
+        font-weight: 500;
+    }
+    .status-fail {
+        color: #e74c3c;
+        background: #fdeaea;
+        border-radius: 12px;
+        padding: 2px 12px;
+        font-size: 0.95em;
+        font-weight: 500;
+    }
+    .read-more {
+        color: #ffce3a;
+        cursor: pointer;
+        font-size: 0.95em;
+        margin-left: 6px;
+    }
+</style>
+<div class="container" style="max-width: 1100px; margin: 0 auto;">
+    <div class="dashboard-header">
+        <div class="dashboard-title">Leads Dashboard</div>
+        <div class="dashboard-search">
+            <input type="text" id="searchInput" placeholder="Search by customer or message...">
+            <span class="search-icon"><i class="fa fa-search"></i></span>
+        </div>
+    </div>
+    <div class="dashboard-cards">
+        <div class="dashboard-card" style="background: #fffbe6;">
+            <span class="icon" style="color:#ffce3a;"><i class="fa fa-users"></i></span>
+            <span class="label">Total Leads</span>
+            <span class="value">{{ leads_data|length }}</span>
+        </div>
+        <div class="dashboard-card" style="background: #f6faff;">
+            <span class="icon" style="color:#4b7bec;"><i class="fa fa-comments"></i></span>
+            <span class="label">Customer Messages</span>
+            <span class="value">{{ leads_data|length }}</span>
+        </div>
+        <div class="dashboard-card" style="background: #fff0f6;">
+            <span class="icon" style="color:#e17055;"><i class="fa fa-robot"></i></span>
+            <span class="label">LLM Responses</span>
+            <span class="value">{{ leads_data|length }}</span>
+        </div>
+        <div class="dashboard-card" style="background: #f9fbe7;">
+            <span class="icon" style="color:#00b894;"><i class="fa fa-bullhorn"></i></span>
+            <span class="label">Campaigns</span>
+            <span class="value">{{ leads_data|map(attribute='campaign_id')|unique|list|length }}</span>
+        </div>
+    </div>
+    <div class="dashboard-table">
+        <table id="leadsTable">
+            <thead>
+                <tr>
+                    <th>Customer Name</th>
+                    <th>Customer Message</th>
+                    <th>LLM Response</th>
+                    <th>Campaign ID</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for lead in leads_data %}
+                <tr>
+                    <td>{{ lead.customer_name }}</td>
+                    <td>
+                        <span class="short-text">{{ lead.customer_msg[:40] }}{% if lead.customer_msg|length > 40 %}...<span class="read-more" data-fulltext="{{ lead.customer_msg|e }}" onclick="showFull(this)">Read more</span>{% endif %}</span>
+                    </td>
+                    <td>
+                        <span class="short-text">{{ lead.llm_msg[:40] }}{% if lead.llm_msg|length > 40 %}...<span class="read-more" data-fulltext="{{ lead.llm_msg|e }}" onclick="showFull(this)">Read more</span>{% endif %}</span>
+                    </td>
+                    <td>{{ lead.campaign_id }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+<script>
+function showFull(elem) {
+    const fullText = elem.getAttribute('data-fulltext');
+    elem.parentElement.innerHTML = fullText;
+}
+// Simple search filter
+const searchInput = document.getElementById('searchInput');
+const table = document.getElementById('leadsTable');
+searchInput.addEventListener('keyup', function() {
+    const filter = searchInput.value.toLowerCase();
+    for (let row of table.tBodies[0].rows) {
+        let match = false;
+        for (let cell of row.cells) {
+            if (cell.textContent.toLowerCase().includes(filter)) {
+                match = true;
+                break;
+            }
+        }
+        row.style.display = match ? '' : 'none';
+    }
+});
+</script>
 {% endblock %}

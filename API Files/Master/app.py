@@ -374,7 +374,31 @@ def campaign():
 def leads():
     if 'name' not in session:
         return redirect(url_for('login'))
-    return render_template('leads.html')
+    conn, cur = get_db_connection()
+    # Get businessId for the logged-in user
+    cur.execute("SELECT businessId FROM business WHERE name=%s", (session['name'],))
+    business_id_row = cur.fetchone()
+    leads_data = []
+    if business_id_row:
+        business_id = business_id_row[0]
+        # Join chatlog and customer, filter by businessId
+        cur.execute('''
+            SELECT c.fName, ch.customer_msg, ch.LLM_msg, ch.campaignId
+            FROM chatlog ch
+            JOIN customer c ON ch.customerId = c.customerId
+            WHERE c.campaignId IN (SELECT campaignId FROM campaign WHERE businessId = %s)
+            ORDER BY ch.chatlogId DESC
+        ''', (business_id,))
+        for row in cur.fetchall():
+            leads_data.append({
+                'customer_name': row[0],
+                'customer_msg': row[1],
+                'llm_msg': row[2],
+                'campaign_id': row[3]
+            })
+    cur.close()
+    conn.close()
+    return render_template('leads.html', leads_data=leads_data)
 
 @app.route('/sales')
 def sales():
