@@ -8,13 +8,15 @@
 <body>
     {% extends "base.html" %}
     {% block content %}
-    <h2 style="text-align:center; color:#219150; font-size:2rem;">Login to your business dashboard</h2>
-    <form method="POST">
-        <input type="text" name="name" placeholder="Business Name" required style="display:block; margin:12px auto; width:80%;">
-        <input type="password" name="password" placeholder="Password" required style="display:block; margin:12px auto; width:80%;">
-        <button type="submit" style="display:block; margin:18px auto 0 auto; background:linear-gradient(90deg, #43ea7f 0%, #219150 100%); color:#fff; min-width:120px; max-width:240px; height:44px; font-size:1.08rem; border:none; border-radius:50px;">Login</button>
-    </form>
-    <p style="text-align:center;">New here? <a href="{{ url_for('register') }}">Register your business</a></p>
+    <div class="container">
+        <h2>Login to your business dashboard</h2>
+        <form method="POST">
+            <input type="text" name="name" placeholder="Business Name" required>
+            <input type="password" name="password" placeholder="Password" required>
+            <button type="submit">Login</button>
+        </form>
+        <p>New here? <a href="{{ url_for('register') }}">Register your business</a></p>
+    </div>
     {% endblock %}
 </body>
 </html>

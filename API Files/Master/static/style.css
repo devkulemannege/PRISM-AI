@@ -76,19 +76,20 @@ input:focus, select#product_type:focus {
 button,
 .button-link,
 a.button-link {
-  background: var(--yellow);
+  background: var(--white); /* Match .cta-btn in index.css */
   color: var(--black);
+  font-family: 'Poppins', sans-serif;
+  font-weight: 700;
+  font-size: 1.2rem;
   border: none;
-  border-radius: 50px;
-  padding: 10px 18px;
-  font-size: 1.08rem;
-  height: 44px;
+  border-radius: 8px;
+  padding: 16px 40px;
   cursor: pointer;
-  box-shadow: 0 2px 8px var(--black);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
   text-decoration: none !important;
   margin: 0 auto;
   display: block;
-  transition: all 0.2s ease;
+  transition: background 0.2s, color 0.2s;
 }
 
 button:hover,
@@ -96,8 +97,20 @@ button:hover,
 a.button-link:hover {
   background: var(--black);
   color: var(--yellow);
-  transform: translateY(-2px) scale(1.03);
-  box-shadow: 0 4px 16px var(--black);
+}
+
+/* For yellow variant buttons (like .login-btn) */
+.button-yellow, .navbar nav a.login-btn {
+  background: var(--yellow) !important;
+  color: var(--black) !important;
+  border-radius: 8px;
+  padding: 8px 24px;
+  font-weight: 700;
+  transition: background 0.2s, color 0.2s;
+}
+.button-yellow:hover, .navbar nav a.login-btn:hover {
+  background: var(--black) !important;
+  color: var(--yellow) !important;
 }
 
 .button-group {
@@ -152,88 +165,45 @@ a, a:visited, a:active, a:hover {
   margin-bottom: 32px;
 }
 
-.main-header {
-  width: 100%;
-  background: var(--yellow);
-  color: var(--black);
+/* HEADER SECTION - Copied from index.css for consistency */
+.navbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0 32px;
-  height: 64px;
-  box-shadow: 0 2px 12px var(--black);
-  position: sticky;
-  top: 0;
-  z-index: 100;
-}
-
-.header-left, .header-right, .header-nav {
-  display: flex;
-  align-items: center;
-  gap: 24px;
-}
-
-.header-logo {
-  font-size: 1.5rem;
-  font-weight: 700;
-  letter-spacing: 1px;
-  margin-right: 24px;
-  color: var(--black);
-}
-
-.header-nav a {
-  color: var(--black);
-  text-decoration: none;
-  font-size: 1.08rem;
-  padding: 6px 12px;
-  border-radius: 6px;
-  transition: all 0.2s;
-}
-
-.header-nav a:hover {
-  font-weight: 700;
+  padding: 24px 60px 16px 60px;
   background: var(--white);
+  box-shadow: 0 2px 12px rgba(0,0,0,0.04);
 }
-
-.profile-pic {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 2px solid var(--yellow);
-  background: var(--white);
-  box-shadow: 0 2px 8px var(--black);
-}
-
-.profile-card {
-  background: var(--white);
-  border-radius: 18px;
-  box-shadow: 0 8px 32px var(--black);
-  padding: 36px 48px;
-  text-align: center;
-  min-width: 320px;
-  max-width: 400px;
-}
-
-.profile-pic-large {
-  width: 96px;
-  height: 96px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 3px solid var(--yellow);
-  margin-bottom: 18px;
-  box-shadow: 0 2px 8px var(--black);
-}
-
-.profile-card h2 {
+.logo {
+  font-family: 'Necosmic', sans-serif;
+  font-size: 2.2rem;
   color: var(--yellow);
-  margin-bottom: 8px;
-  font-size: 1.5rem;
+  letter-spacing: 2px;
+}
+.navbar nav a {
+  color: var(--black);
+  text-decoration: none !important;
+  margin: 0 18px;
+  font-weight: 600;
+  font-size: 1.08rem;
+  transition: color 0.2s;
+}
+.navbar nav a.login-btn {
+  background: var(--yellow);
+  color: var(--black);
+  padding: 8px 24px;
+  border-radius: 8px;
+  margin-left: 18px;
+  font-weight: 700;
+}
+.navbar nav a:hover, .navbar nav a.login-btn:hover {
+  color: var(--yellow);
+  background: var(--black);
 }
 
-.profile-role, .profile-details {
-  color: var(--black);
-  font-size: 1.05rem;
+/* Remove/override old header styles if needed */
+.main-header, .header-left, .header-right, .header-nav, .header-logo {
+  all: unset;
 }
 
 @media (max-width: 900px) {
