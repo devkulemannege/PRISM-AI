@@ -94,6 +94,6 @@ def find_relevant_campaign(text, faiss_index_path="Master/campaign_vector.index"
         print("Best campaign meta:", campaign_meta[best_idx]['campaign_id'])
         return campaign_meta[best_idx]['campaign_id']
     
-text="can i know laptopss"
-campaign_id = find_relevant_campaign(text, "Master/campaign_vector.index", "Master/campaign_vector_meta.pkl")
+text="I want mangoes"
+campaign_id = find_relevant_campaign(text, "Master/campaign_vector.index", "Master/campaign_vector_meta.pkl") 
 print(f"Most relevant campaign found: {campaign_id}")

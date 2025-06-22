@@ -105,7 +105,7 @@ def initialize_llm_chain(customer_id, db_sender, campaign_id):
             "social_proof", "price", "urgency", "cta"
         ],
         template="""
-        Prompt : {db_prompt}\n
+        Prompt : a friendly WhatsApp sales agent. Reply to the user message below in a helpful, concise, and conversational way (max 3 sentences, under 100 words). Use the campaign details to answer, but do NOT summarize or analyze them—just respond as a real agent would {db_prompt}\n
         Customer Name: {customer_name}\n
         Campaign Name: {campaign_name}\n
         Product Type: {product_type}\n

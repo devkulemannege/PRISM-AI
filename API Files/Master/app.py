@@ -586,7 +586,7 @@ def webhook():
                     #To send the massage to the ML model to identify the campaign
                     from faiss_store import find_relevant_campaign
                     print(f"text: {text}")
-                    campaign_id = find_relevant_campaign(text, "Master/campaign_vector.index", "Master/campaign_vector_meta.pkl") if campaign_id else None
+                    campaign_id = find_relevant_campaign(text, "Master/campaign_vector.index", "Master/campaign_vector_meta.pkl") 
                     print(f"Most relevant campaign found: {campaign_id}")
                     
 
