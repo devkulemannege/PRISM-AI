@@ -72,6 +72,10 @@ def search_campaigns(query, top_k=3):
     return [meta[i] for i in I[0] if i < len(meta)]
 
 def find_relevant_campaign(text, faiss_index_path="Master/campaign_vector.index", meta_path="Master/campaign_vector_meta.pkl"):
+    # Robust: Check if index file exists
+    if not os.path.exists(faiss_index_path) or not os.path.exists(meta_path):
+        print(f"[FAISS] Index or meta file not found: {faiss_index_path}, {meta_path}")
+        return None  # Or return a default value, or raise a user-friendly error
     # Load FAISS index and metadata
     faiss_index = faiss.read_index(faiss_index_path)
     with open(meta_path, "rb") as f:

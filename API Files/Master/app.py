@@ -21,6 +21,7 @@ import sys
 import threading
 from flask import Flask, request
 from llm_chain import initialize_llm_chain, call_llm_with_chain
+from cluster_visualization import fetch_all_chatlog_msgs, cluster_and_reduce, save_cluster_plot
 
 # Load environment variables
 load_dotenv(dotenv_path=os.path.abspath(os.path.join(os.path.dirname(__file__), "credentials.env")))
@@ -374,13 +375,60 @@ def campaign():
 def leads():
     if 'name' not in session:
         return redirect(url_for('login'))
-    return render_template('leads.html')
+    conn, cur = get_db_connection()
+    leads_data = []
+    # Get businessId for the logged-in user
+    cur.execute("SELECT businessId FROM business WHERE name=%s", (session['name'],))
+    row = cur.fetchone()
+    business_id = row[0] if row else None
+    if business_id:
+        cur.execute('''
+            SELECT ch.msgId, ch.customerId, ch.businessId, ch.LLM_msg, ch.customer_msg, ch.timestamp, ch.CampaignId, cu.fName, ca.campaignName
+            FROM chatlog ch
+            JOIN campaign ca ON ch.CampaignId = ca.campaignId
+            LEFT JOIN customer cu ON ch.customerId = cu.customerId
+            WHERE ca.businessId = %s
+            ORDER BY ch.msgId DESC
+        ''', (business_id,))
+        rows = cur.fetchall()
+        for row in rows:
+            leads_data.append({
+                'msg_id': row[0],
+                'customer_id': row[1],
+                'business_id': row[2],
+                'llm_msg': row[3],
+                'customer_msg': row[4],
+                'timestamp': row[5],
+                'campaign_id': row[6],
+                'customer_name': row[7] or 'Unknown',
+                'campaign_name': row[8] or 'Unknown'
+            })
+    cur.close()
+    conn.close()
+    return render_template('leads.html', leads_data=leads_data)
 
 @app.route('/sales')
 def sales():
     if 'name' not in session:
         return redirect(url_for('login'))
-    return render_template('sales.html')
+    img_path = None
+    cluster_msg = None
+    df = fetch_all_chatlog_msgs()
+    if not df.empty:
+        static_dir = os.path.join(app.root_path, 'static')
+        if not os.path.exists(static_dir):
+            os.makedirs(static_dir)
+        img_path = os.path.join(static_dir, 'sales_clusters.png')
+        clustered_df = cluster_and_reduce(df, n_clusters=5)
+        if clustered_df is not None:
+            save_cluster_plot(clustered_df, img_path)
+        else:
+            img_path = None
+            cluster_msg = "Not enough customer messages to perform clustering."
+    else:
+        cluster_msg = "No customer messages found."
+    img_url = url_for('static', filename='sales_clusters.png') if img_path and os.path.exists(img_path) else None
+    return render_template('sales.html', cluster_img=img_url, cluster_msg=cluster_msg)
 
 @app.route('/agent')
 def agent():
