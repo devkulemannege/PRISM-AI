@@ -108,17 +108,123 @@ def dashboard():
         # Get businessId for the logged-in user
         cur.execute("SELECT businessId FROM business WHERE name=%s", (session['name'],))
         business_id_row = cur.fetchone()
-        campaigns = []
-        if business_id_row:
-            business_id = business_id_row[0]
-            # Fetch all campaigns for this business
-            cur.execute("SELECT * FROM campaign WHERE businessId=%s ORDER BY campaignId DESC", (business_id,))
-            columns = [desc[0] for desc in cur.description]
-            for row in cur.fetchall():
-                campaigns.append(dict(zip(columns, row)))
-        cur.close()  # <-- Fix: close the cursor, not the connection
+        business_id = business_id_row[0] if business_id_row else None
+
+        # Default values for all analytics
+        total_sales = 0
+        total_leads = 0
+        total_campaigns = 0
+        total_customers = 0
+        total_uploads = 0
+        active_campaigns = 0
+        recent_upload = None
+        top_campaign = None
+        recent_sale = None
+        chart_labels = []
+        chart_data = []
+
+        if business_id:
+            # Total campaigns
+            cur.execute("SELECT COUNT(*) FROM campaign WHERE businessId=%s", (business_id,))
+            total_campaigns = cur.fetchone()[0] or 0
+
+            # Total leads (messages from customers)
+            cur.execute("SELECT COUNT(*) FROM chatlog WHERE businessId=%s", (business_id,))
+            total_leads = cur.fetchone()[0] or 0
+
+            # Total sales (simulate as number of unique customers with a sale, or sum of sales table if exists)
+            try:
+                cur.execute("SELECT COUNT(DISTINCT customerId) FROM chatlog WHERE businessId=%s AND LLM_msg LIKE '%purchase%'", (business_id,))
+                total_sales = cur.fetchone()[0] or 0
+            except:
+                total_sales = 0
+
+            # Total customers (count distinct customers linked to this business via campaign)
+            cur.execute("""
+                SELECT COUNT(DISTINCT cu.customerId)
+                FROM customer cu
+                JOIN campaign ca ON cu.campaignId = ca.campaignId
+                WHERE ca.businessId=%s
+            """, (business_id,))
+            total_customers = cur.fetchone()[0] or 0
+
+            # Total uploads (CSV files in CustomerUpload/)
+            upload_dir = os.path.join(os.path.dirname(__file__), 'CustomerUpload')
+            if os.path.exists(upload_dir):
+                files = [f for f in os.listdir(upload_dir) if f.endswith('.csv')]
+                total_uploads = len(files)
+                # Recent upload
+                if files:
+                    latest_file = max(files, key=lambda f: os.path.getctime(os.path.join(upload_dir, f)))
+                    with open(os.path.join(upload_dir, latest_file), 'r', encoding='utf-8', errors='ignore') as f:
+                        row_count = sum(1 for _ in f) - 1  # minus header
+                    recent_upload = {'filename': latest_file, 'rows': row_count}
+            else:
+                total_uploads = 0
+                recent_upload = None
+
+            # Active campaigns (simulate as campaigns created in last 30 days)
+            cur.execute("SELECT COUNT(*) FROM campaign WHERE businessId=%s AND created_at >= NOW() - INTERVAL 30 DAY", (business_id,))
+            active_campaigns = cur.fetchone()[0] or 0
+
+            # Top campaign (by number of leads)
+            cur.execute("""
+                SELECT c.campaignName, COUNT(ch.msgId) as leads
+                FROM campaign c LEFT JOIN chatlog ch ON c.campaignId = ch.CampaignId
+                WHERE c.businessId=%s
+                GROUP BY c.campaignId
+                ORDER BY leads DESC LIMIT 1
+            """, (business_id,))
+            row = cur.fetchone()
+            if row:
+                top_campaign = {'name': row[0], 'leads': row[1]}
+
+            # Recent sale (simulate as latest chatlog with 'purchase' in LLM_msg)
+            cur.execute("""
+                SELECT ch.LLM_msg, cu.fName FROM chatlog ch
+                LEFT JOIN customer cu ON ch.customerId = cu.customerId
+                WHERE ch.businessId=%s AND ch.LLM_msg LIKE '%purchase%'
+                ORDER BY ch.timestamp DESC LIMIT 1
+            """, (business_id,))
+            row = cur.fetchone()
+            if row:
+                recent_sale = {'amount': 'Success', 'customer': row[1] or 'Unknown'}
+
+            # Chart data: sales per campaign (or per month)
+            cur.execute("""
+                SELECT DATE_FORMAT(ch.timestamp, '%b %Y') as month, COUNT(*) as sales
+                FROM chatlog ch
+                WHERE ch.businessId=%s AND ch.LLM_msg LIKE '%purchase%'
+                GROUP BY month
+                ORDER BY MIN(ch.timestamp) ASC
+            """, (business_id,))
+            chart_rows = cur.fetchall()
+            chart_labels = [row[0] for row in chart_rows] if chart_rows else []
+            chart_data = [row[1] for row in chart_rows] if chart_rows else []
+
+        # Always return lists for chart_labels and chart_data
+        if not chart_labels:
+            chart_labels = ["No Data"]
+        if not chart_data:
+            chart_data = [0]
+
+        cur.close()
         conn.close()
-        return render_template('dashboard.html', name=session['name'], campaigns=campaigns)
+        return render_template(
+            'dashboard.html',
+            name=session['name'],
+            total_sales=total_sales,
+            total_leads=total_leads,
+            total_campaigns=total_campaigns,
+            recent_upload=recent_upload,
+            top_campaign=top_campaign,
+            recent_sale=recent_sale,
+            total_customers=total_customers,
+            total_uploads=total_uploads,
+            active_campaigns=active_campaigns,
+            chart_labels=chart_labels,
+            chart_data=chart_data
+        )
     else:
         return redirect(url_for('login'))
 
@@ -314,7 +420,13 @@ def process_customer_upload():
             file_path = max(files, key=os.path.getctime)
     if file_path and campaign_id:
         ml_read_file.readData.campaignId = int(campaign_id)
-        ml_read_file.readData(file_path)
+        # Get businessId for the campaign
+        conn, cur = get_db_connection()
+        cur.execute("SELECT businessId FROM campaign WHERE campaignId=%s", (campaign_id,))
+        business_id_row = cur.fetchone()
+        business_id = business_id_row[0] if business_id_row else None
+        conn.close()
+        ml_read_file.readData(file_path, businessId=business_id)
         send_template_to_all(int(campaign_id))  # Automatically send outbound messages after upload
         return render_template('success.html')
     return "Missing file path or campaign ID."
@@ -325,18 +437,15 @@ def profile():
     if 'name' not in session:
         return redirect(url_for('login'))
     conn, cur = get_db_connection()
-    # Fetch businessId for the logged-in user
-    cur.execute("SELECT businessId FROM business WHERE name=%s", (session['name'],))
-    business_id_row = cur.fetchone()
-    business_id = business_id_row[0] if business_id_row else None
-    # Fetch customer row for this business (assuming 1:1 business-customer for profile)
-    cur.execute("SELECT * FROM customer WHERE campaignId IN (SELECT campaignId FROM campaign WHERE businessId=%s) ORDER BY customerId DESC LIMIT 1", (business_id,))
-    customer = cur.fetchone()
+    # Fetch business row for the logged-in user
+    cur.execute("SELECT * FROM business WHERE name=%s", (session['name'],))
+    business = cur.fetchone()
     columns = [desc[0] for desc in cur.description]
-    customer_dict = dict(zip(columns, customer)) if customer else None
+    business_dict = dict(zip(columns, business)) if business else None
+    print('DEBUG: business_dict =', business_dict)  # Debug print
     profile_pic_url = url_for('static', filename='profile.png')
-    if customer_dict and customer_dict.get('profile_pic'):
-        profile_pic_url = url_for('static', filename='profile_pics/' + customer_dict['profile_pic'])
+    if business_dict and business_dict.get('profile_pic'):
+        profile_pic_url = url_for('static', filename='profile_pics/' + business_dict['profile_pic'])
     if request.method == 'POST':
         file = request.files.get('profile_pic')
         if file and file.filename:
@@ -345,12 +454,15 @@ def profile():
             if not os.path.exists(pic_folder):
                 os.makedirs(pic_folder)
             file.save(os.path.join(pic_folder, filename))
-            # Save filename in DB
-            cur.execute("UPDATE customer SET profile_pic=%s WHERE customerId=%s", (filename, customer_dict['customerId']))
+            cur.execute("UPDATE business SET profile_pic=%s WHERE businessId=%s", (filename, business_dict['businessId']))
             conn.commit()
             profile_pic_url = url_for('static', filename='profile_pics/' + filename)
+        # Refresh business_dict after update
+        cur.execute("SELECT * FROM business WHERE name=%s", (session['name'],))
+        business = cur.fetchone()
+        business_dict = dict(zip(columns, business)) if business else None
     conn.close()
-    return render_template('profile.html', profile_pic_url=profile_pic_url, customer=customer_dict)
+    return render_template('profile.html', profile_pic_url=profile_pic_url, business=business_dict)
 
 @app.route('/campaign')
 def campaign():

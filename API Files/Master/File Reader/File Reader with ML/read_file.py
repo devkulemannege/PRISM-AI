@@ -3,7 +3,7 @@ import customer_table
 import pathlib
 from machine_model import identify
 
-def readData(file):
+def readData(file, businessId=None):
     '''Reads the entirety of the imported CSV file.
     sends data to the database as well'''
     # initialize data holder dictionary / variables
@@ -93,6 +93,6 @@ def readData(file):
             mobFixList.insert(0, '0')
             oneInstance['mobileNo'] = ''.join(map(str, mobFixList))
         #print(oneInstance)
-        customer_table.addRow(oneInstance['mobileNo'], oneInstance['fName'], oneInstance['lName'], oneInstance['email'], campaignId)
+        customer_table.addRow(oneInstance['mobileNo'], oneInstance['fName'], oneInstance['lName'], oneInstance['email'], campaignId, businessId)
 
 #readData('C:\\Users\\Devpriya\\Documents\\Extra\\readExcel.xlsx')

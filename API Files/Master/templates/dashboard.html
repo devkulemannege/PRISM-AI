@@ -7,10 +7,113 @@
 <body>
     {% extends "base.html" %}
     {% block content %}
-    <div class="container">
-        <h2>Welcome, {{ name }}!</h2>
-        <p>This is your secure dashboard.</p>
+    <div class="dashboard-main" style="display:flex; gap:32px; align-items:flex-start; justify-content:center; background:#f7f7fa; min-height:90vh; padding:32px 0;">
+      <!-- Left: Main Analytics -->
+      <div style="flex:2; min-width:340px;">
+        <div class="dashboard-cards" style="display:flex; gap:24px; flex-wrap:wrap; margin-bottom:32px;">
+          <!-- Overview Card (Chart Placeholder) -->
+          <div class="dashboard-card" style="flex:2; min-width:340px; background:linear-gradient(135deg,#7b5cff 60%,#fadc07 100%); border-radius:18px; color:#fff; padding:32px 28px; box-shadow:0 2px 16px #7b5cff30; position:relative;">
+            <h3 style="font-size:1.2rem; font-weight:700; margin-bottom:12px;">Overview</h3>
+            <canvas id="overviewChart" width="400" height="120"></canvas>
+            <div style="display:flex; justify-content:space-between; margin-top:18px;">
+              <div>
+                <div style="font-size:2.1rem; font-weight:700;">{{ total_sales or 0 }}</div>
+                <div style="font-size:1rem; opacity:0.8;">Total Sales</div>
+              </div>
+              <div>
+                <div style="font-size:2.1rem; font-weight:700;">{{ total_leads or 0 }}</div>
+                <div style="font-size:1rem; opacity:0.8;">Total Leads</div>
+              </div>
+              <div>
+                <div style="font-size:2.1rem; font-weight:700;">{{ total_campaigns or 0 }}</div>
+                <div style="font-size:1rem; opacity:0.8;">Campaigns</div>
+              </div>
+            </div>
+          </div>
+          <!-- Quick Links -->
+          <a href="{{ url_for('campaign') }}" class="dashboard-card" style="flex:1; min-width:180px; background:#fff; border-radius:18px; color:#7b5cff; padding:24px 18px; box-shadow:0 2px 12px #7b5cff10; text-align:center; font-weight:600; text-decoration:none;">
+            <div style="font-size:2.2rem; margin-bottom:8px;">📢</div>
+            Campaigns
+          </a>
+          <a href="{{ url_for('leads') }}" class="dashboard-card" style="flex:1; min-width:180px; background:#fff; border-radius:18px; color:#fadc07; padding:24px 18px; box-shadow:0 2px 12px #fadc0710; text-align:center; font-weight:600; text-decoration:none;">
+            <div style="font-size:2.2rem; margin-bottom:8px;">🧑‍💼</div>
+            Leads
+          </a>
+          <a href="{{ url_for('sales') }}" class="dashboard-card" style="flex:1; min-width:180px; background:#fff; border-radius:18px; color:#7b5cff; padding:24px 18px; box-shadow:0 2px 12px #7b5cff10; text-align:center; font-weight:600; text-decoration:none;">
+            <div style="font-size:2.2rem; margin-bottom:8px;">📈</div>
+            Sales
+          </a>
+          <a href="{{ url_for('customer_upload') }}" class="dashboard-card" style="flex:1; min-width:180px; background:#fff; border-radius:18px; color:#fadc07; padding:24px 18px; box-shadow:0 2px 12px #fadc0710; text-align:center; font-weight:600; text-decoration:none;">
+            <div style="font-size:2.2rem; margin-bottom:8px;">📤</div>
+            Customer Uploads
+          </a>
+        </div>
+        <!-- Analytics Cards -->
+        <div style="display:flex; gap:24px; flex-wrap:wrap; margin-bottom:32px;">
+          <div class="dashboard-card" style="flex:1; min-width:220px; background:#fff; border-radius:18px; color:#222; padding:24px 18px; box-shadow:0 2px 12px #7b5cff10;">
+            <div style="font-size:1.1rem; font-weight:600; margin-bottom:8px;">Recent Upload</div>
+            <div style="font-size:1.6rem; font-weight:700;">{{ recent_upload.filename if recent_upload else 'None' }}</div>
+            <div style="font-size:0.98rem; opacity:0.7;">Rows: {{ recent_upload.rows if recent_upload else 0 }}</div>
+          </div>
+          <div class="dashboard-card" style="flex:1; min-width:220px; background:#fff; border-radius:18px; color:#222; padding:24px 18px; box-shadow:0 2px 12px #fadc0710;">
+            <div style="font-size:1.1rem; font-weight:600; margin-bottom:8px;">Top Campaign</div>
+            <div style="font-size:1.6rem; font-weight:700;">{{ top_campaign.name if top_campaign else 'N/A' }}</div>
+            <div style="font-size:0.98rem; opacity:0.7;">Leads: {{ top_campaign.leads if top_campaign else 0 }}</div>
+          </div>
+          <div class="dashboard-card" style="flex:1; min-width:220px; background:#fff; border-radius:18px; color:#222; padding:24px 18px; box-shadow:0 2px 12px #7b5cff10;">
+            <div style="font-size:1.1rem; font-weight:600; margin-bottom:8px;">Recent Sale</div>
+            <div style="font-size:1.6rem; font-weight:700;">{{ recent_sale.amount if recent_sale else 'N/A' }}</div>
+            <div style="font-size:0.98rem; opacity:0.7;">Customer: {{ recent_sale.customer if recent_sale else 'N/A' }}</div>
+          </div>
+        </div>
+      </div>
+      <!-- Right: Sidebar (optional, for team/friends/quick stats) -->
+      <div class="dashboard-sidebar" style="flex:1; min-width:260px; background:#fff; border-radius:18px; box-shadow:0 2px 12px #7b5cff10; padding:32px 18px;">
+        <h3 style="font-size:1.1rem; font-weight:700; color:#7b5cff; margin-bottom:18px;">Quick Stats</h3>
+        <div style="margin-bottom:18px;">
+          <div style="font-size:1.05rem; margin-bottom:6px;">Total Customers: <b>{{ total_customers or 0 }}</b></div>
+          <div style="font-size:1.05rem; margin-bottom:6px;">CSV Uploads: <b>{{ total_uploads or 0 }}</b></div>
+          <div style="font-size:1.05rem; margin-bottom:6px;">Active Campaigns: <b>{{ active_campaigns or 0 }}</b></div>
+        </div>
+        <h3 style="font-size:1.1rem; font-weight:700; color:#fadc07; margin-bottom:12px;">Navigation</h3>
+        <ul style="list-style:none; padding:0; margin:0;">
+          <li style="margin-bottom:10px;"><a href="{{ url_for('dashboard') }}" style="color:#7b5cff;">Dashboard</a></li>
+          <li style="margin-bottom:10px;"><a href="{{ url_for('campaign') }}" style="color:#7b5cff;">Campaigns</a></li>
+          <li style="margin-bottom:10px;"><a href="{{ url_for('leads') }}" style="color:#fadc07;">Leads</a></li>
+          <li style="margin-bottom:10px;"><a href="{{ url_for('sales') }}" style="color:#7b5cff;">Sales</a></li>
+          <li style="margin-bottom:10px;"><a href="{{ url_for('customer_upload') }}" style="color:#fadc07;">Customer Uploads</a></li>
+        </ul>
+      </div>
     </div>
+    <!-- Chart.js for Overview Chart -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+    const ctx = document.getElementById('overviewChart').getContext('2d');
+    const overviewChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: {{ chart_labels|tojson }},
+            datasets: [{
+                label: 'Sales',
+                data: {{ chart_data|tojson }},
+                backgroundColor: 'rgba(123,92,255,0.15)',
+                borderColor: '#7b5cff',
+                borderWidth: 3,
+                pointBackgroundColor: '#fadc07',
+                pointRadius: 6,
+                fill: true,
+                tension: 0.4
+            }]
+        },
+        options: {
+            plugins: { legend: { display: false } },
+            scales: {
+                x: { grid: { display: false } },
+                y: { grid: { color: '#eee' }, beginAtZero: true }
+            }
+        }
+    });
+    </script>
     {% endblock %}
 </body>
 </html>

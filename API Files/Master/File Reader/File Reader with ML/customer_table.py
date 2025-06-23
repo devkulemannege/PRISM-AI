@@ -12,7 +12,7 @@ connection = connect_db_local.connection
 
 connect, cursor = connection()
 
-def addRow(mobileNo, fName, lName, email, campaignId=None):
+def addRow(mobileNo, fName, lName, email, campaignId=None, businessId=None):
     '''function which can be used to add rows
     to the customer data table in the database'''
     customerId = 0
@@ -21,9 +21,15 @@ def addRow(mobileNo, fName, lName, email, campaignId=None):
         print("Database connection not available.")
         return
     try:
-        if campaignId is not None:
+        if campaignId is not None and businessId is not None:
+            cursor.execute('INSERT INTO customer (mobileNo, fName, lName, email, campaignId, businessId, pastConversation) VALUES (%s, %s, %s, %s, %s, %s, %s)',
+                        (mobileNo, fName, lName, email, campaignId, businessId, pastConversation))
+        elif campaignId is not None:
             cursor.execute('INSERT INTO customer (mobileNo, fName, lName, email, campaignId, pastConversation) VALUES (%s, %s, %s, %s, %s, %s)',
                         (mobileNo, fName, lName, email, campaignId, pastConversation))
+        elif businessId is not None:
+            cursor.execute('INSERT INTO customer (mobileNo, fName, lName, email, businessId, pastConversation) VALUES (%s, %s, %s, %s, %s, %s)',
+                        (mobileNo, fName, lName, email, businessId, pastConversation))
         else:
             cursor.execute('INSERT INTO customer (mobileNo, fName, lName, email, pastConversation) VALUES (%s, %s, %s, %s, %s)',
                         (mobileNo, fName, lName, email, pastConversation))
