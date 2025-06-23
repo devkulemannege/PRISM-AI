@@ -30,7 +30,7 @@ def fetch_chatlog_msgs():
         host='localhost',
         user='root',
         password='',
-        database='prism_ai_database_new'
+        database='prismaimaster'
     )
     df = pd.read_sql("SELECT customerId, customer_msg FROM chatlog WHERE customer_msg IS NOT NULL AND customer_msg != ''", conn)
     conn.close()

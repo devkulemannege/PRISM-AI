@@ -9,6 +9,8 @@ from dotenv import load_dotenv
 import faiss
 import pickle
 from sentence_transformers import SentenceTransformer
+from langchain.agents import initialize_agent, AgentType
+from langchain.tools.tavily_search import TavilySearchResults
 
 # Load environment variables
 load_dotenv(os.path.abspath(os.path.join(os.path.dirname(__file__), "credentials.env")))
@@ -20,6 +22,10 @@ session_histories = {}
 llm = ChatGroq(api_key=GROQ_API_KEY, model="llama3-8b-8192")
 def initialize_llm_chain(customer_id, db_sender, campaign_id):
     llm = ChatGroq(api_key=GROQ_API_KEY, model="llama3-8b-8192")
+    # Add Tavily search tool
+    tavily_api_key = os.getenv("TAVILY_API_KEY")
+    search_tool = TavilySearchResults(api_key=tavily_api_key)
+    tools = [search_tool]
 
     # Fetch customer and campaign details
     connection, cursor = get_db_connection()
@@ -97,45 +103,59 @@ def initialize_llm_chain(customer_id, db_sender, campaign_id):
             session_histories[session_id] = ChatMessageHistory()
         return session_histories[session_id]
 
-    # Update prompt template to include all campaign fields
-    prompt_template = PromptTemplate(
-        input_variables=[
-            "history", "db_prompt", "input", "customer_name", "campaign_name", "offer", "main_benefits",
-            "product_type", "target_audience", "target_problem", "unique_solution", "reason_why_needed",
-            "social_proof", "price", "urgency", "cta"
-        ],
-        template="""
-        Prompt : a friendly WhatsApp sales agent. Reply to the user message below in a helpful, concise, and conversational way (max 3 sentences, under 100 words). Use the campaign details to answer, but do NOT summarize or analyze them—just respond as a real agent would {db_prompt}\n
-        Customer Name: {customer_name}\n
-        Campaign Name: {campaign_name}\n
-        Product Type: {product_type}\n
-        Target Audience: {target_audience}\n
-        Target Problem: {target_problem}\n
-        Unique Solution: {unique_solution}\n
-        Reason Why Needed: {reason_why_needed}\n
-        Main Benefits: {main_benefits}\n
-        Social Proof: {social_proof}\n
-        Price: {price}\n
-        Offer: {offer}\n
-        Urgency: {urgency}\n
-        CTA: {cta}\n
-        Conversation History: {history}\n
-        User Message: {input}\n
-        """
+    # Prompt for the agent
+    prompt = (
+        "You are PRISM-AI, a friendly WhatsApp sales agent. Reply to the user message below in a helpful, concise, and conversational way (max 3 sentences, under 100 words). "
+        "Use the campaign details to answer, but do NOT summarize or analyze them—just respond as a real agent would. "
+        "If you need to answer questions about the web, you can use the search tool.\n"
+        "Customer Name: {customer_name}\n"
+        "Campaign Name: {campaign_name}\n"
+        "Product Type: {product_type}\n"
+        "Target Audience: {target_audience}\n"
+        "Target Problem: {target_problem}\n"
+        "Unique Solution: {unique_solution}\n"
+        "Reason Why Needed: {reason_why_needed}\n"
+        "Main Benefits: {main_benefits}\n"
+        "Social Proof: {social_proof}\n"
+        "Price: {price}\n"
+        "Offer: {offer}\n"
+        "Urgency: {urgency}\n"
+        "CTA: {cta}\n"
+        "Conversation History: {history}\n"
+        "User Message: {input}\n"
+        "Your reply:"
     )
 
-    # Build the runnable chain
-    chain = prompt_template | llm
-    runnable = RunnableWithMessageHistory(
-        runnable=chain,
-        get_session_history=get_session_history,
-        input_messages_key="input",
-        history_messages_key="history"
+    # Prepare variables for the agent
+    agent_kwargs = {
+        "customer_name": customer_name,
+        "campaign_name": campaign_name,
+        "product_type": product_type,
+        "target_audience": target_audience,
+        "target_problem": target_problem,
+        "unique_solution": unique_solution,
+        "reason_why_needed": reason_why_needed,
+        "main_benefits": main_benefits,
+        "social_proof": social_proof,
+        "price": price,
+        "offer": offer,
+        "urgency": urgency,
+        "cta": cta,
+        "history": history_data,
+    }
+
+    # Initialize the agent
+    agent = initialize_agent(
+        tools,
+        llm,
+        agent=AgentType.ZERO_SHOT_REACT_DESCRIPTION,
+        verbose=True,
+        agent_kwargs={"system_message": prompt}
     )
 
-    # Return all required values for the prompt
+    # Return the agent and context
     return (
-        runnable, customer_name, campaign_name, offer, main_benefits, product_type, target_audience, target_problem,
+        agent, customer_name, campaign_name, offer, main_benefits, product_type, target_audience, target_problem,
         unique_solution, reason_why_needed, social_proof, price, urgency, cta, db_prompt, history_data
     )
 

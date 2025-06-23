@@ -47,7 +47,7 @@ def fetch_all_chatlog_msgs():
         host='localhost',
         user='root',
         password='',
-        database='prism_ai_database_new'
+        database='prismaimaster'
     )
     query = '''
         SELECT ch.customerId, cu.fName, ch.customer_msg
