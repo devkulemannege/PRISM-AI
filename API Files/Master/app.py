@@ -163,8 +163,8 @@ def dashboard():
                 total_uploads = 0
                 recent_upload = None
 
-            # Active campaigns (simulate as campaigns created in last 30 days)
-            cur.execute("SELECT COUNT(*) FROM campaign WHERE businessId=%s AND created_at >= NOW() - INTERVAL 30 DAY", (business_id,))
+            # Active campaigns (now just total campaigns for this business)
+            cur.execute("SELECT COUNT(*) FROM campaign WHERE businessId=%s", (business_id,))
             active_campaigns = cur.fetchone()[0] or 0
 
             # Top campaign (by number of leads)
