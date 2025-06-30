@@ -71,7 +71,7 @@ def search_campaigns(query, top_k=3):
     D, I = index.search(embedding, top_k)
     return [meta[i] for i in I[0] if i < len(meta)]
 
-def find_relevant_campaign(text, faiss_index_path="Master/campaign_vector.index", meta_path="Master/campaign_vector_meta.pkl"):
+def find_relevant_campaign(text, faiss_index_path="campaign_vector.index", meta_path="campaign_vector_meta.pkl"):
     # Robust: Check if index file exists
     if not os.path.exists(faiss_index_path) or not os.path.exists(meta_path):
         print(f"[FAISS] Index or meta file not found: {faiss_index_path}, {meta_path}")
@@ -99,5 +99,5 @@ def find_relevant_campaign(text, faiss_index_path="Master/campaign_vector.index"
         return campaign_meta[best_idx]['campaign_id']
     
 text="I want mangoes"
-campaign_id = find_relevant_campaign(text, "Master/campaign_vector.index", "Master/campaign_vector_meta.pkl") 
+campaign_id = find_relevant_campaign(text, "campaign_vector.index", "campaign_vector_meta.pkl") 
 print(f"Most relevant campaign found: {campaign_id}")
