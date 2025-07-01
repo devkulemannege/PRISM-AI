@@ -263,7 +263,7 @@ def generate_prompt():
     one_time_prompt = f"""Act as the world's best AI salesperson to solve the problem  of {target_problem} for {target_audience} by providing {product_name} and specifically {unique_solution} s the unfair advantage and the reason why it needs is {reason_why_needed} also giving high benifits such as {main_benefits} while {social_proof}. So the price selling is {price} but as a special offer giving for {offer}, so {urgency} and {cta}  , using simple, friendly messages (100 words or in 3 sentences) to build trust like a friend. Indirectly promote the product by addressing the target problem and unique solution. If the customer asks about the product directly, provide clear details to drive a sale and share the business contact (website/social). Use paragraphs only when needed. Dont put the thinking process or do not analyse just simple massage output like a sales person would"""
 
     #Choose the massage template and the mass based on user input
-    Massage_template="retail" #for now
+    Massage_template="test" #for now
     if Massage_template == "retail":
         template= "retail_template"
         template_parameters="customer_name,business_name,description,product_name"
