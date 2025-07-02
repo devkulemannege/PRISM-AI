@@ -4,7 +4,7 @@ import pathlib
 from machine_model import identify
 
 def readData(file, businessId=None):
-    '''Reads the entirety of the imported CSV file.
+    '''Reads the entirety of the imported CSV or XLSX file.
     sends data to the database as well'''
     # initialize data holder dictionary / variables
     oneInstance = {
