@@ -35,6 +35,7 @@ def initialize_llm_chain(customer_id, db_sender, campaign_id):
         User Message: {input}
         """
     history_data = []
+    campaign_data = []  # Now a list to store all campaign dicts
     try:
         if customer_id and connection and cursor:
             # Fetch customer name
@@ -44,16 +45,14 @@ def initialize_llm_chain(customer_id, db_sender, campaign_id):
                 customer_name = customer_row[0]
 
             # Fetch campaign details including the prompt
-            cursor.execute(""" 
-                SELECT campaignName, prompt FROM campaign
-                WHERE campaignId = %s
-            """, (campaign_id,))
+            cursor.execute("SELECT campaignName, prompt FROM campaign WHERE campaignId = %s", (campaign_id,))
             campaign_row = cursor.fetchone()
-            campaign_data = None
             if campaign_row:
                 campaign_name, db_prompt = campaign_row
-                # Fetch campaign data from vector store
-                campaign_data = fetch_campaign_by_name(campaign_name)
+                # Fetch campaign data from vector store using campaign_id
+                campaign_dict = fetch_campaign_by_id(campaign_id)
+                if campaign_dict:
+                    campaign_data.append(campaign_dict)
 
             # Load conversation history from chatlog
             cursor.execute("""
@@ -70,18 +69,19 @@ def initialize_llm_chain(customer_id, db_sender, campaign_id):
             cursor.close()
             connection.close()
 
-    # Extract extra fields from campaign_data if available
-    offer = campaign_data.get('offer', '') if campaign_data else ''
-    main_benefits = campaign_data.get('main_benefits', '') if campaign_data else ''
-    product_type = campaign_data.get('product_type', '') if campaign_data else ''
-    target_audience = campaign_data.get('target_audience', '') if campaign_data else ''
-    target_problem = campaign_data.get('target_problem', '') if campaign_data else ''
-    unique_solution = campaign_data.get('unique_solution', '') if campaign_data else ''
-    reason_why_needed = campaign_data.get('reason_why_needed', '') if campaign_data else ''
-    social_proof = campaign_data.get('social_proof', '') if campaign_data else ''
-    price = campaign_data.get('price', '') if campaign_data else ''
-    urgency = campaign_data.get('urgency', '') if campaign_data else ''
-    cta = campaign_data.get('cta', '') if campaign_data else ''
+    # Extract all fields from the first campaign_data dict if available
+    campaign_info = campaign_data[0] if campaign_data else {}
+    offer = campaign_info.get('offer', '')
+    main_benefits = campaign_info.get('main_benefits', '')
+    product_type = campaign_info.get('product_type', '')
+    target_audience = campaign_info.get('target_audience', '')
+    target_problem = campaign_info.get('target_problem', '')
+    unique_solution = campaign_info.get('unique_solution', '')
+    reason_why_needed = campaign_info.get('reason_why_needed', '')
+    social_proof = campaign_info.get('social_proof', '')
+    price = campaign_info.get('price', '')
+    urgency = campaign_info.get('urgency', '')
+    cta = campaign_info.get('cta', '')
 
     # Initialize ChatMessageHistory for this session
     session_id = str(customer_id) if customer_id else db_sender
@@ -136,25 +136,20 @@ def initialize_llm_chain(customer_id, db_sender, campaign_id):
 
     # Return all required values for the prompt
     return (
-        runnable, customer_name, campaign_name, offer, main_benefits, product_type, target_audience, target_problem,
-        unique_solution, reason_why_needed, social_proof, price, urgency, cta, db_prompt, history_data
+        runnable, customer_name, campaign_name, db_prompt, history_data, campaign_data
     )
 
-def fetch_campaign_by_name(campaign_name, faiss_index_path="campaign_vector.index", meta_path="campaign_vector_meta.pkl"):
+# New function to fetch campaign data from vector store by campaign_id
+def fetch_campaign_by_id(campaign_id, faiss_index_path="campaign_vector.index", meta_path="campaign_vector_meta.pkl"):
     # Load FAISS index and metadata
-    faiss_index = faiss.read_index(faiss_index_path)
     with open(meta_path, "rb") as f:
         campaign_meta = pickle.load(f)  # List of dicts or objects
-
-    # Encode the campaign name
-    model = SentenceTransformer('all-MiniLM-L6-v2')
-    campaign_vec = model.encode([campaign_name])
-
-    # Search for the most similar campaign
-    D, I = faiss_index.search(campaign_vec, k=1)
-    best_idx = I[0][0]
-    best_campaign = campaign_meta[best_idx]
-    return best_campaign
+    # Find the campaign dict with matching campaign_id
+    for campaign in campaign_meta:
+        if str(campaign.get('campaign_id', '')) == str(campaign_id):
+            return campaign
+    print(f"Campaign with id {campaign_id} not found in vector meta.")
+    return {}
 
 def call_llm_with_chain(runnable, user_input, customer_name, campaign_name, session_id=None,
                         offer='', main_benefits='', product_type='', target_audience='', target_problem='',

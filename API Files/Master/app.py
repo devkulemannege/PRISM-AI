@@ -9,7 +9,7 @@ from werkzeug.utils import secure_filename
 
 #Imports to run the agent
 from dotenv import load_dotenv
-import os
+import os 
 import requests
 import mysql.connector
 from mysql.connector import Error
@@ -575,7 +575,7 @@ def send_whatsapp_message(phone, msg):
 
 # WhatsApp - Send Template Message
 def send_template(phone, template_name, parameters=None):
-    """Send a template message to a WhatsApp number."""
+    """Send a template message to a WhatsApp number. Using a POST request to the WhatsApp API."""
     url = f"https://graph.facebook.com/v19.0/{PHONE_NUMBER_ID}/messages"
     headers = {
         "Authorization": f"Bearer {ACCESS_TOKEN}",
@@ -748,15 +748,31 @@ def webhook():
                     print(f"text: {text}")
                     campaign_id = find_relevant_campaign(text, "Master/campaign_vector.index", "Master/campaign_vector_meta.pkl") 
                     print(f"Most relevant campaign found: {campaign_id}")
-                    
 
-                    
                     # Initialize LangChain conversation
                     print(f"Initialized LangChain conversation for customerId={customer_id}, sender={db_sender}, campaign_id={campaign_id}")
+                    # Updated: Unpack campaign_data[0] for campaign fields
                     (
-                        runnable, customer_name, campaign_name, offer, main_benefits, product_type, target_audience, target_problem,
-                        unique_solution, reason_why_needed, social_proof, price, urgency, cta, db_prompt, history_data
+                        runnable, customer_name, campaign_data, db_prompt, history_data
                     ) = initialize_llm_chain(customer_id, db_sender, campaign_id)
+
+                    # campaign_data is a list of dicts (for future multi-campaign support)
+                    # For now, use the first campaign (campaign_data[0])
+                    if not campaign_data or not isinstance(campaign_data, list):
+                        raise ValueError(f"Expected campaign_data as a non-empty list, got: {campaign_data}")
+                    campaign_fields = campaign_data[0]
+                    campaign_name = campaign_fields.get('campaign_name')
+                    offer = campaign_fields.get('offer')
+                    main_benefits = campaign_fields.get('main_benefits')
+                    product_type = campaign_fields.get('product_type')
+                    target_audience = campaign_fields.get('target_audience')
+                    target_problem = campaign_fields.get('target_problem')
+                    unique_solution = campaign_fields.get('unique_solution')
+                    reason_why_needed = campaign_fields.get('reason_why_needed')
+                    social_proof = campaign_fields.get('social_proof')
+                    price = campaign_fields.get('price')
+                    urgency = campaign_fields.get('urgency')
+                    cta = campaign_fields.get('cta')
 
                     # Generate AI reply using LangChain
                     ai_reply = call_llm_with_chain(
