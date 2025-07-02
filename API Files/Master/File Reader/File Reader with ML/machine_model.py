@@ -17,7 +17,7 @@ def identify(keyword):
     '''ML based column type identification 
     for a wider range of inupts'''
 
-    if '_' in keyword: keyword = keyword.replace('_',' ') # removes underscore if found
+    if ' ' in keyword: keyword = keyword.replace(' ','_') # removes space if found
 
     dataEncode = LabelEncoder() # prepare training for keys (Encoded)
     yTrainEncode = dataEncode.fit_transform(yDataset)

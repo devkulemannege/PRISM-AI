@@ -34,14 +34,16 @@ def readData(file, businessId=None):
     for row in range(len(data)):
         for col in range(len(data.columns)):
             cell = str(data.iloc[row, col]).strip() # read every cell in CSV
-            passValue = str(data.columns[col].strip())
+            formatCol = str(data.columns[col]) # change type to str
+            passValue = formatCol.strip()
 
             if str(identify(passValue)) == "['nameHeaders']": # if full name is under one column 
                 # initialize variables for particular scenario
                 tempFirstNameHolder = []
                 spaceCount = 0
                 secondarySpaceCount = 0
-                count_main = 0
+                count_main_1 = 0
+                count_main_2 = 0
 
                 for i in cell:
                     if i == ' ':
@@ -56,10 +58,17 @@ def readData(file, businessId=None):
                     oneInstance['lName'] = cell[count_main:] # assing last name to last name
                 else:
                     for i in cell:
-                        count_main += 1
+                        count_main_1 += 1
                         if i == ' ': secondarySpaceCount += 1
                         if secondarySpaceCount == spaceCount: break
-                    oneInstance['fName'] = oneInstance['lName'] =  cell[count_main:] # assing last name to first name & last name
+
+                    spaceCount = 0
+                    count_main_2 = -1
+                    for i in cell:
+                        count_main_2 += 1
+                        if i == ' ': break
+                    oneInstance['fName'] = cell[:count_main_2] # assign first name
+                    oneInstance['lName'] =  cell[count_main_1:] # assign last name 
 
             elif str(identify(passValue)) == "['firstNameHeaders']":oneInstance['fName'] = cell # if cell contains first name dataoneInstance['fName'] = cell
             
@@ -95,4 +104,4 @@ def readData(file, businessId=None):
         #print(oneInstance)
         customer_table.addRow(oneInstance['mobileNo'], oneInstance['fName'], oneInstance['lName'], oneInstance['email'], campaignId, businessId)
 
-#readData('C:\\Users\\Devpriya\\Documents\\Extra\\readExcel.xlsx')
+#readData("C:\\Users\\Devpriya\\Downloads\\customer_info.csv")
