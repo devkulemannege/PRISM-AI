@@ -7,7 +7,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'D
 from connect_db import get_db_connection
 from werkzeug.utils import secure_filename
 
-#Imports to run the agent
+# Imports to run the agent
 from dotenv import load_dotenv
 import os
 import requests
